@@ -1,6 +1,46 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:latest
+    volumes:
+      - mysql:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_1
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user1234
+      MYSQL_TCP_PORT: 3309
+    ports:
+      - '3309:3309'
+    expose:
+      - 3309
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+    networks:
+      - articles-service
+
+  mysql_test:
+    image: mysql:latest
+    volumes:
+      - mysql_test:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_test
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user1234
+      MYSQL_TCP_PORT: 3310
+    ports:
+      - '3310:3310'
+    expose:
+      - 3310
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+    networks:
+      - articles-service
+
   nginx:
     image: nginx:latest
     volumes:
@@ -19,6 +59,11 @@ services:
     command: gunicorn --bind 0.0.0.0:8001 --workers 4 'articles.app:create_app()' --reload
     volumes:
       - ./:/articles-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mysql_test:
+        condition: service_healthy
     ports:
       - "8001:8001"
     networks:
@@ -27,6 +72,8 @@ services:
           - articles-app
 
 volumes:
+  mysql:
+  mysql_test:
   nginx:
 
 networks:
