@@ -11,6 +11,7 @@ gunicorn = "*"
 alembic = "*"
 pytest = "*"
 mysqlclient = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 
