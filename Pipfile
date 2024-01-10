@@ -9,6 +9,7 @@ flask-restful = "*"
 python-dotenv = "*"
 gunicorn = "*"
 alembic = "*"
+pytest = "*"
 
 [dev-packages]
 
