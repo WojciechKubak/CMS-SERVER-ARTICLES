@@ -21,3 +21,12 @@ class Article:
     content: str
     category: Category
     tags: list[Tag]
+
+    def with_category_and_tags(self, category: Category, tags: list[Tag]) -> 'Article':
+        return Article(
+            id_=self.id_,
+            title=self.title,
+            content=self.content,
+            category=category,
+            tags=tags
+        )
