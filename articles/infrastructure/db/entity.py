@@ -68,8 +68,8 @@ class ArticleEntity(Base):
     category_id: Mapped[int] = mapped_column(Integer(), ForeignKey('categories.id'), nullable=True)
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
     updated_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp(), onupdate=func.utc_timestamp())
-    category: Mapped[CategoryEntity] = relationship(CategoryEntity, back_populates='articles')
-    tags: Mapped[list[TagEntity]] = relationship(TagEntity, secondary=articles_tags)
+    category: Mapped[CategoryEntity] = relationship(CategoryEntity, back_populates='articles', lazy='immediate')
+    tags: Mapped[list[TagEntity]] = relationship(TagEntity, secondary=articles_tags, lazy='immediate')
 
     @classmethod
     def from_domain(cls, model: Article) -> 'ArticleEntity':
@@ -86,6 +86,6 @@ class ArticleEntity(Base):
             id_=self.id,
             title=self.title,
             content=self.content,
-            category=self.category.to_domain(),
+            category=self.category.to_domain() if self.category else None,
             tags=[tag.to_domain() for tag in self.tags]
         )
