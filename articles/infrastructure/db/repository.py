@@ -58,14 +58,38 @@ class ArticleRepository(CrudRepository):
     _engine: Engine
     _entity: Any = ArticleEntity
 
+    @transactional
+    def add(self, session: Session, item: ArticleEntity) -> None:
+        session.merge(item)
+
+    @transactional
+    def find_by_title(self, session: Session, title: str) -> ArticleEntity | None:
+        return session.query(self._entity).filter_by(title=title).first()
+
+    @transactional
+    def find_by_category_id(self, session: Session, category_id: int) -> list[ArticleEntity]:
+        return session.query(self._entity).filter_by(category_id=category_id).all()
+
 
 @dataclass
 class CategoryRepository(CrudRepository):
     _engine: Engine
     _entity: Any = CategoryEntity
 
+    @transactional
+    def find_by_name(self, session: Session, name: str) -> CategoryEntity | None:
+        return session.query(self._entity).filter_by(name=name).first()
+
 
 @dataclass
 class TagRepository(CrudRepository):
     _engine: Engine
     _entity: Any = TagEntity
+
+    @transactional
+    def find_by_name(self, session: Session, name: str) -> CategoryEntity | None:
+        return session.query(self._entity).filter_by(name=name).first()
+
+    @transactional
+    def find_many_by_id(self, session: Session, ids: list[int]) -> list[TagEntity]:
+        return session.query(self._entity).filter(self._entity.id.in_(ids)).all()
