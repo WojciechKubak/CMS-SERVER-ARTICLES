@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -7,11 +8,26 @@ class Category:
     name: str
     description: str
 
+    @classmethod
+    def from_dto(cls, data: dict[str, Any]) -> 'Category':
+        return cls(
+            id_=data.get('id'),
+            name=data.get('name'),
+            description=data.get('description')
+        )
+
 
 @dataclass
 class Tag:
     id_: int
     name: str
+
+    @classmethod
+    def from_dto(cls, data: dict[str, Any]) -> 'Tag':
+        return cls(
+            id_=data.get('id'),
+            name=data.get('name')
+        )
 
 
 @dataclass
@@ -29,4 +45,14 @@ class Article:
             content=self.content,
             category=category,
             tags=tags
+        )
+
+    @classmethod
+    def from_dto(cls, data: dict[str, Any]) -> 'Article':
+        return cls(
+            id_=data.get('id'),
+            title=data.get('title'),
+            content=data.get('content'),
+            category=Category.from_dto({'id': data.get('category_id')}),
+            tags=[Tag.from_dto({'id': id_}) for id_ in data.get('tags_id')]
         )
