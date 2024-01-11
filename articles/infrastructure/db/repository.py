@@ -60,9 +60,7 @@ class ArticleRepository(CrudRepository):
 
     @transactional
     def add(self, session: Session, item: ArticleEntity) -> None:
-        item.category = session.merge(item.category)
-        item.tags = [session.merge(tag_entity) for tag_entity in item.tags]
-        session.add(item)
+        session.merge(item)
 
     @transactional
     def find_by_title(self, session: Session, title: str) -> ArticleEntity | None:
