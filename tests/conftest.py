@@ -1,3 +1,4 @@
+from articles.infrastructure.db.repository import ArticleRepository, CategoryRepository, TagRepository
 from articles.infrastructure.db.entity import Base
 from articles.config import TestingConfig
 from sqlalchemy import Engine, create_engine
@@ -30,3 +31,18 @@ def tables(db_engine: Engine):
     Base.metadata.create_all(db_engine)
     yield
     Base.metadata.drop_all(db_engine)
+
+
+@pytest.fixture(scope='session')
+def article_repository(db_engine: Engine) -> ArticleRepository:
+    return ArticleRepository(db_engine)
+
+
+@pytest.fixture(scope='session')
+def category_repository(db_engine: Engine) -> CategoryRepository:
+    return CategoryRepository(db_engine)
+
+
+@pytest.fixture(scope='session')
+def tag_repository(db_engine: Engine) -> TagRepository:
+    return TagRepository(db_engine)
