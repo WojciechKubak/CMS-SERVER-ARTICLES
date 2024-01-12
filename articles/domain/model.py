@@ -8,6 +8,13 @@ class Category:
     name: str
     description: str
 
+    def to_json(self) -> dict[str, Any]:
+        return {
+            'id': self.id_,
+            'name': self.name,
+            'description': self.description
+        }
+
     @classmethod
     def from_dto(cls, data: dict[str, Any]) -> 'Category':
         return cls(
@@ -21,6 +28,12 @@ class Category:
 class Tag:
     id_: int
     name: str
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            'id': self.id_,
+            'name': self.name,
+        }
 
     @classmethod
     def from_dto(cls, data: dict[str, Any]) -> 'Tag':
@@ -37,6 +50,15 @@ class Article:
     content: str
     category: Category
     tags: list[Tag]
+
+    def to_json(self) -> dict[str, Any]:
+        return {
+            'id': self.id_,
+            'title': self.title,
+            'content': self.content,
+            'category': self.category.to_json(),
+            'tags': [tag.to_json() for tag in self.tags]
+        }
 
     def with_category_and_tags(self, category: Category, tags: list[Tag]) -> 'Article':
         return Article(
