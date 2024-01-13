@@ -1,5 +1,5 @@
 from articles.ports.input import CategoryApiInputPort, ArticleApiInputPort, TagApiInputPort
-from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort
+from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort, FileStorageOutputAdapter
 from articles.domain.model import Category, Article, Tag
 from dataclasses import dataclass
 
@@ -43,6 +43,7 @@ class ArticleDomainService(ArticleApiInputPort):
     article_db_adapter: ArticleDbOutputPort
     category_db_adapter: CategoryDbOutputPort
     tag_db_adapter: TagDbOutputPort
+    storage_manager: FileStorageOutputAdapter
 
     def create_article(self, article: Article) -> Article:
         if self.article_db_adapter.get_article_by_title(article.title):
@@ -52,35 +53,48 @@ class ArticleDomainService(ArticleApiInputPort):
         tags_id = [tag.id_ for tag in article.tags]
         if len(tags := self.tag_db_adapter.get_tags_by_id(tags_id)) != len(tags_id):
             raise ValueError('Tag does not exist')
+        
+        content_path = self.storage_manager.upload_article_content(article)  
+        article_to_add = article\
+            .with_category_and_tags(category, tags)\
+            .with_content(content_path)
 
-        article_to_create = article.with_category_and_tags(category, tags)
-        return self.article_db_adapter.save_article(article_to_create)
+        added_article = self.article_db_adapter.save_article(article_to_add)
+        return added_article.with_content(article.content)
 
+    
     def update_article(self, article: Article) -> Article:
-        if not self.article_db_adapter.get_article_by_id(article.id_):
+        article_by_id = self.article_db_adapter.get_article_by_id(article.id_)
+        if not article_by_id:
             raise ValueError('Article does not exist')
-        result = self.article_db_adapter.get_article_by_title(article.title)
-        if result and result.id_ != article.id_:
+        article_by_title = self.article_db_adapter.get_article_by_title(article.title)
+        if article_by_title and article_by_title.id_ != article.id_:
             raise ValueError('Article title already exists')
         if not (category := self.category_db_adapter.get_category_by_id(article.category.id_)):
             raise ValueError('Category does not exist')
         tags_id = [tag.id_ for tag in article.tags]
         if len(tags := self.tag_db_adapter.get_tags_by_id(tags_id)) != len(tags_id):
             raise ValueError('Tag does not exist')
-
+        
         article_to_update = article.with_category_and_tags(category, tags)
+        self.storage_manager.update_article_content(article_by_id, article.content)
+
         return self.article_db_adapter.update_article(article_to_update)
 
     def delete_article(self, id_: int) -> int:
-        if not self.article_db_adapter.get_article_by_id(id_):
+        article_by_id = self.article_db_adapter.get_article_by_id(id_)
+        if not article_by_id:
             raise ValueError('Article does not exist')
+        self.storage_manager.delete_article_content(article_by_id)
         self.article_db_adapter.delete_article(id_)
+        
         return id_
 
     def get_article_by_id(self, id_: int) -> Article:
         if not (article := self.article_db_adapter.get_article_by_id(id_)):
             raise ValueError('Article does not exist')
-        return article
+        content = self.storage_manager.read_article_content(article)
+        return article.with_content(content)
 
     def get_articles_with_category(self, category_id: int) -> list[Article]:
         if not self.category_db_adapter.get_category_by_id(category_id):
@@ -88,7 +102,8 @@ class ArticleDomainService(ArticleApiInputPort):
         return self.article_db_adapter.get_articles_with_category(category_id)
 
     def get_all_articles(self) -> list[Article]:
-        return self.article_db_adapter.get_all_articles()
+        return [article.with_content(self.storage_manager.read_article_content(article)) 
+                for article in self.article_db_adapter.get_all_articles()]
 
 
 @dataclass

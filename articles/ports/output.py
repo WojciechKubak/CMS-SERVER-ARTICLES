@@ -89,3 +89,22 @@ class TagDbOutputPort(ABC):
     @abstractmethod
     def get_all_tags(self) -> list[Tag]:
         pass
+
+
+class FileStorageOutputAdapter(ABC):
+
+    @abstractmethod
+    def upload_article_content(self, article: Article) -> str:
+        pass
+
+    @abstractmethod
+    def read_article_content(self, article: Article) -> str:
+        pass
+
+    @abstractmethod
+    def update_article_content(self, article: Article, new_content: str) -> None:
+        pass
+
+    @abstractmethod
+    def delete_article_content(self, article: Article) -> None:
+        pass

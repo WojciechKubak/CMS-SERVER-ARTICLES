@@ -1,11 +1,12 @@
 from articles.infrastructure.api.service import ArticleApiService, CategoryApiService, TagApiService
 from articles.domain.service import ArticleDomainService, CategoryDomainService, TagDomainService
 from articles.infrastructure.db.repository import ArticleRepository, CategoryRepository, TagRepository
-from articles.infrastructure.adapters.adapters import ArticleDbAdapter, CategoryDbAdapter, TagDbAdapter
+from articles.infrastructure.adapters.adapters import ArticleDbAdapter, CategoryDbAdapter, TagDbAdapter, FileStorageAdapter
 from articles.infrastructure.db.entity import Base
 from articles.config import get_app_configuration, Config
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
+from unittest.mock import MagicMock
 import pytest
 import os
 
@@ -94,12 +95,25 @@ def category_domain_service(category_db_adapter: CategoryDbAdapter) -> CategoryD
 
 
 @pytest.fixture(scope='session')
+def file_storage_adapter() -> FileStorageAdapter:
+    mock = MagicMock(spec=FileStorageAdapter)
+    mock.read_article_content.return_value = 'path'
+    return mock
+
+
+@pytest.fixture(scope='session')
 def article_domain_service(
         article_db_adapter: ArticleDbAdapter,
         category_db_adapter: CategoryDbAdapter,
-        tag_db_adapter: CategoryDbAdapter
+        tag_db_adapter: CategoryDbAdapter,
+        file_storage_adapter: FileStorageAdapter
 ) -> ArticleDomainService:
-    return ArticleDomainService(article_db_adapter, category_db_adapter, tag_db_adapter)
+    return ArticleDomainService(
+        article_db_adapter, 
+        category_db_adapter, 
+        tag_db_adapter, 
+        file_storage_adapter
+    )
 
 
 @pytest.fixture(scope='session')

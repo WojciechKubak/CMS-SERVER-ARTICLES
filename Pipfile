@@ -12,6 +12,8 @@ alembic = "*"
 pytest = "*"
 mysqlclient = "*"
 sqlalchemy = "*"
+boto3 = "*"
+moto = {version = "*", extras = ["all", "ec2", "s3"]}
 
 [dev-packages]
 

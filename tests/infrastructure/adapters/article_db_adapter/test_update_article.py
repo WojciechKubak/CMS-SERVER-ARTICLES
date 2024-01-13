@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 
 def test_update_article(article_db_adapter: ArticleDbAdapter, db_session: Session) -> None:
-    db_session.add(ArticleEntity(id=1, title='title', content='dummy'))
+    db_session.add(ArticleEntity(id=1, title='title'))
     db_session.commit()
 
     article = Article(

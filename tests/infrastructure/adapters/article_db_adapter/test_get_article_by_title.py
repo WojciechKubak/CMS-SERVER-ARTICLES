@@ -14,7 +14,6 @@ class TestGetArticleByTitle:
         db_session.add(ArticleEntity(
             id=1,
             title='title',
-            content='dummy',
             category=CategoryEntity(id=1, name='name', description='dummy')
             )
         )

@@ -1,5 +1,6 @@
-from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort
+from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort, FileStorageOutputAdapter
 from articles.infrastructure.db.repository import CategoryRepository, ArticleRepository, TagRepository
+from articles.infrastructure.storage.manager import S3BucketManager
 from articles.infrastructure.db.entity import CategoryEntity, ArticleEntity, TagEntity
 from articles.domain.model import Category, Article, Tag
 from dataclasses import dataclass
@@ -102,3 +103,20 @@ class TagDbAdapter(TagDbOutputPort):
 
     def get_all_tags(self) -> list[Tag]:
         return [tag.to_domain() for tag in self.tag_repository.find_all()]
+
+
+@dataclass
+class FileStorageAdapter(FileStorageOutputAdapter):
+    storage_manager: S3BucketManager
+    
+    def upload_article_content(self, article: Article) -> str:
+        return self.storage_manager.upload_to_file(article.content)
+    
+    def read_article_content(self, article: Article) -> str:
+        return self.storage_manager.read_file_content(article.content)
+
+    def update_article_content(self, article: Article, new_content: str) -> None:
+        self.storage_manager.update_file_content(article.content, new_content)
+
+    def delete_article_content(self, article: Article) -> None:
+        self.storage_manager.delete_file(article.content)

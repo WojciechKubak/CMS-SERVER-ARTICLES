@@ -68,6 +68,15 @@ class Article:
             category=category,
             tags=tags
         )
+    
+    def with_content(self, content: str) -> 'Article':
+        return Article(
+            id_=self.id_,
+            title=self.title,
+            content=content,
+            category=self.category,
+            tags=self.tags
+        )
 
     @classmethod
     def from_dto(cls, data: dict[str, Any]) -> 'Article':

@@ -6,7 +6,7 @@ def test_to_domain() -> None:
     article_dao = ArticleEntity(
         id=1,
         title='title',
-        content='dummy',
+        content_path='dummy',
         category=CategoryEntity(id=1, name='name', description='dummy'),
         tags=[TagEntity(id=1, name='name'), TagEntity(id=2, name='name')]
     )
