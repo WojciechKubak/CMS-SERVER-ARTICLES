@@ -1,4 +1,8 @@
-from articles.config import get_app_configuration
+from articles.infrastructure.api.service import (
+    ArticleApiService, 
+    CategoryApiService, 
+    TagApiService
+)
 from articles.infrastructure.api.routes import (
     CategoryResource,
     CategoryIdResource,
@@ -11,16 +15,30 @@ from articles.infrastructure.api.routes import (
     TagIdResource,
     TagListResource
 )
+from articles.config import Config
 from flask import Flask
 from flask.testing import Client
 from flask_restful import Api
+from unittest.mock import patch
 import pytest
 
 
+@pytest.fixture(autouse=True, scope='session')
+def mock_services(
+    article_api_service: ArticleApiService, 
+    category_api_service: CategoryApiService, 
+    tag_api_service: TagApiService
+    ) -> None:
+    with patch.multiple('articles.infrastructure.api.routes',
+                        article_service=article_api_service,
+                        category_service=category_api_service,
+                        tag_service=tag_api_service):
+        yield
+
 @pytest.fixture(scope='function')
-def app() -> Flask:
+def app(config_settings: type[Config]) -> Flask:
     app = Flask(__name__)
-    app.config.from_object(get_app_configuration())
+    app.config.from_object(config_settings)
 
     api = Api(app, prefix='/articles')
     api.add_resource(CategoryResource, '/categories')
