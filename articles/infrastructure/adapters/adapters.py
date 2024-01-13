@@ -42,8 +42,8 @@ class ArticleDbAdapter(ArticleDbOutputPort):
 
     def save_article(self, article: Article) -> Article:
         article_to_add = ArticleEntity.from_domain(article)
-        self.article_repository.add(article_to_add)
-        return article_to_add.to_domain()
+        article_entity = self.article_repository.add(article_to_add)
+        return article_entity.to_domain()
 
     def update_article(self, article: Article) -> Article:
         article_to_update = ArticleEntity.from_domain(article)

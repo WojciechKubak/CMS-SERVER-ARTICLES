@@ -67,4 +67,4 @@ class TestIdResourcePut:
         }
         response = client.post(self.resource_path, json=article_dto)
         assert 201 == response.status_code
-        assert db_session.query(ArticleEntity).filter_by(title='title').first()
+        assert db_session.query(ArticleEntity).filter_by(id=response.json['id']).first()

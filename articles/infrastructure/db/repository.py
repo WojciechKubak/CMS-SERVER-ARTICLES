@@ -59,8 +59,8 @@ class ArticleRepository(CrudRepository):
     _entity: Any = ArticleEntity
 
     @transactional
-    def add(self, session: Session, item: ArticleEntity) -> None:
-        session.merge(item)
+    def add(self, session: Session, item: ArticleEntity) -> ArticleEntity:
+        return session.merge(item)
 
     @transactional
     def find_by_title(self, session: Session, title: str) -> ArticleEntity | None:
