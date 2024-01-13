@@ -11,13 +11,13 @@ class CategoryDbAdapter(CategoryDbOutputPort):
 
     def save_category(self, category: Category) -> Category:
         category_to_add = CategoryEntity.from_domain(category)
-        self.category_repository.add(category_to_add)
-        return category_to_add.to_domain()
+        category_entity = self.category_repository.add_or_update(category_to_add)
+        return category_entity.to_domain()
 
     def update_category(self, category: Category) -> Category:
         category_to_update = CategoryEntity.from_domain(category)
-        self.category_repository.update(category_to_update)
-        return category_to_update.to_domain()
+        category_entity = self.category_repository.add_or_update(category_to_update)
+        return category_entity.to_domain()
 
     def delete_category(self, id_: int) -> None:
         self.category_repository.delete(id_)
@@ -42,13 +42,13 @@ class ArticleDbAdapter(ArticleDbOutputPort):
 
     def save_article(self, article: Article) -> Article:
         article_to_add = ArticleEntity.from_domain(article)
-        article_entity = self.article_repository.add(article_to_add)
+        article_entity = self.article_repository.add_or_update(article_to_add)
         return article_entity.to_domain()
 
     def update_article(self, article: Article) -> Article:
         article_to_update = ArticleEntity.from_domain(article)
-        self.article_repository.update(article_to_update)
-        return article_to_update.to_domain()
+        article_entity = self.article_repository.add_or_update(article_to_update)
+        return article_entity.to_domain()
 
     def delete_article(self, id_: int) -> None:
         self.article_repository.delete(id_)
@@ -76,13 +76,13 @@ class TagDbAdapter(TagDbOutputPort):
 
     def save_tag(self, tag: Tag) -> Tag:
         tag_to_add = TagEntity.from_domain(tag)
-        self.tag_repository.add(tag_to_add)
-        return tag_to_add.to_domain()
+        tag_entity = self.tag_repository.add_or_update(tag_to_add)
+        return tag_entity.to_domain()
 
     def update_tag(self, tag: Tag) -> Tag:
         tag_to_update = TagEntity.from_domain(tag)
-        self.tag_repository.update(tag_to_update)
-        return tag_to_update.to_domain()
+        tag_entity = self.tag_repository.add_or_update(tag_to_update)
+        return tag_entity.to_domain()
 
     def delete_tag(self, id_: int) -> None:
         self.tag_repository.delete(id_)

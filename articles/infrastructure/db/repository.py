@@ -32,12 +32,8 @@ class CrudRepository:
         self.session_maker = scoped_session(sessionmaker(self._engine, expire_on_commit=False))
 
     @transactional
-    def add(self, session: Session, item: Any) -> None:
-        session.add(item)
-
-    @transactional
-    def update(self, session: Session, item: Any) -> None:
-        session.merge(item)
+    def add_or_update(self, session: Session, item: Any) -> Any:
+        return session.merge(item)
 
     @transactional
     def delete(self, session: Session, id_: int) -> None:
@@ -57,10 +53,6 @@ class CrudRepository:
 class ArticleRepository(CrudRepository):
     _engine: Engine
     _entity: Any = ArticleEntity
-
-    @transactional
-    def add(self, session: Session, item: ArticleEntity) -> ArticleEntity:
-        return session.merge(item)
 
     @transactional
     def find_by_title(self, session: Session, title: str) -> ArticleEntity | None:
