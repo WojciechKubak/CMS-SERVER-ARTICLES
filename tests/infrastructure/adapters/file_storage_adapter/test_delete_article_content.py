@@ -1,11 +1,11 @@
 from articles.infrastructure.storage.manager import S3BucketManager
 from articles.infrastructure.adapters.adapters import FileStorageAdapter
 from articles.domain.model import Article
-from moto import mock_s3
+from moto import mock_aws
 import boto3
 
 
-@mock_s3
+@mock_aws
 def test_delete_article_content() -> None:
     bucket_name = 'my-bucket'
     bucket_subfolder_name = 'my-subfolder'
