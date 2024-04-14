@@ -1,5 +1,14 @@
-from articles.ports.input import CategoryApiInputPort, ArticleApiInputPort, TagApiInputPort
-from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort, FileStorageOutputAdapter
+from articles.application.port.input import (
+    CategoryApiInputPort, 
+    ArticleApiInputPort, 
+    TagApiInputPort
+)
+from articles.application.port.output import (
+    CategoryDbOutputPort, 
+    ArticleDbOutputPort, 
+    TagDbOutputPort, 
+    FileStorageOutputAdapter
+)
 from articles.domain.model import Category, Article, Tag
 from dataclasses import dataclass
 

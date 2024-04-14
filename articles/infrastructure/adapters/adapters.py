@@ -1,4 +1,4 @@
-from articles.ports.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort, FileStorageOutputAdapter
+from articles.application.port.output import CategoryDbOutputPort, ArticleDbOutputPort, TagDbOutputPort, FileStorageOutputAdapter
 from articles.infrastructure.db.repository import CategoryRepository, ArticleRepository, TagRepository
 from articles.infrastructure.storage.manager import S3BucketManager
 from articles.infrastructure.db.entity import CategoryEntity, ArticleEntity, TagEntity

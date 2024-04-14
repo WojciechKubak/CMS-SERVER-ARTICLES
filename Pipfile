@@ -18,4 +18,4 @@ moto = {version = "*", extras = ["all", "ec2", "s3"]}
 [dev-packages]
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"

@@ -1,30 +1,34 @@
-from articles.infrastructure.api.service import ArticleApiService, CategoryApiService, TagApiService
-from articles.domain.service import ArticleDomainService, CategoryDomainService, TagDomainService
-from articles.infrastructure.db.repository import ArticleRepository, CategoryRepository, TagRepository
-from articles.infrastructure.adapters.adapters import ArticleDbAdapter, CategoryDbAdapter, TagDbAdapter, FileStorageAdapter
+from articles.infrastructure.api.service import (
+    ArticleApiService, 
+    CategoryApiService, 
+    TagApiService
+)
+from articles.domain.service import (
+    ArticleDomainService, 
+    CategoryDomainService, 
+    TagDomainService
+)
+from articles.infrastructure.db.repository import (
+    ArticleRepository, 
+    CategoryRepository, 
+    TagRepository
+)
+from articles.infrastructure.adapters.adapters import (
+    ArticleDbAdapter, 
+    CategoryDbAdapter, 
+    TagDbAdapter, 
+    FileStorageAdapter
+)
 from articles.infrastructure.db.entity import Base
-from articles.config import get_app_configuration, Config
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, scoped_session, sessionmaker
 from unittest.mock import MagicMock
 import pytest
-import os
-
-
-@pytest.fixture(scope='session', autouse=True)
-def with_test_app_config() -> None:
-    os.environ['APP_CONFIGURATION'] = 'testing'
-    yield
 
 
 @pytest.fixture(scope='session')
-def config_settings(with_test_app_config) -> type[Config]:
-    return get_app_configuration()
-
-
-@pytest.fixture(scope='session')
-def database_uri(config_settings: type[Config]) -> str:
-    return config_settings.DATABASE_URI
+def database_uri() -> str:
+    return 'mysql://user:user1234@localhost:3311/db_test'
 
 
 @pytest.fixture(scope='session')
