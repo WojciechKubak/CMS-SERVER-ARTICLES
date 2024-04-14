@@ -1,4 +1,4 @@
-from articles.ports.input import ArticleApiInputPort, CategoryApiInputPort, TagApiInputPort
+from articles.application.port.input import ArticleApiInputPort, CategoryApiInputPort, TagApiInputPort
 from articles.domain.service import ArticleDomainService, CategoryDomainService, TagDomainService
 from articles.domain.model import Category, Article, Tag
 from dataclasses import dataclass
