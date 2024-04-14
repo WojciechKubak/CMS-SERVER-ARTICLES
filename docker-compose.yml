@@ -68,13 +68,13 @@ services:
       - broker
       - articles-network
 
-volumes:
-  mysql-articles:
-  mysql-articles-test:
-  nginx-articles:
-
 networks:
   articles-network:
     name: articles-network
   broker:
     external: true
+
+volumes:
+  mysql-articles:
+  mysql-articles-test:
+  nginx-articles:

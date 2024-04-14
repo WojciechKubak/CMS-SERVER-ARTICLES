@@ -14,9 +14,8 @@ mysqlclient = "*"
 sqlalchemy = "*"
 boto3 = "*"
 moto = {version = "*", extras = ["all", "ec2", "s3"]}
-kafka-python = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
