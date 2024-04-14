@@ -3,22 +3,10 @@ from articles.infrastructure.api.service import (
     CategoryApiService, 
     TagApiService
 )
-from articles.infrastructure.api.routes import (
-    CategoryResource,
-    CategoryIdResource,
-    CategoryListResource,
-    ArticleResource,
-    ArticleIdResource,
-    ArticlesWithCategoryResource,
-    ArticleListResource,
-    TagResource,
-    TagIdResource,
-    TagListResource
-)
-from articles.config import Config
+from articles import create_app
+from articles.config import TestingConfig
 from flask import Flask
 from flask.testing import Client
-from flask_restful import Api
 from unittest.mock import patch
 import pytest
 
@@ -35,26 +23,10 @@ def mock_services(
                         tag_service=tag_api_service):
         yield
 
+
 @pytest.fixture(scope='function')
-def app(config_settings: type[Config]) -> Flask:
-    app = Flask(__name__)
-    app.config.from_object(config_settings)
-
-    api = Api(app, prefix='/articles')
-    api.add_resource(CategoryResource, '/categories')
-    api.add_resource(CategoryListResource, '/categories')
-    api.add_resource(CategoryIdResource, '/categories/<int:id_>')
-
-    api.add_resource(ArticleResource, '')
-    api.add_resource(ArticleIdResource, '/<int:id_>')
-    api.add_resource(ArticlesWithCategoryResource, '/category/<int:category_id>')
-    api.add_resource(ArticleListResource, '')
-
-    api.add_resource(TagResource, '/tags')
-    api.add_resource(TagIdResource, '/tags/<int:id_>')
-    api.add_resource(TagListResource, '/tags')
-    
-    yield app
+def app() -> Flask:
+    yield create_app(TestingConfig)
 
 
 @pytest.fixture(scope='function')
