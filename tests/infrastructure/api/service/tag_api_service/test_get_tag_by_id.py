@@ -16,4 +16,3 @@ class TestGetTagById:
         db_session.commit()
         result = tag_api_service.get_tag_by_id(1)
         assert db_session.query(TagEntity).filter_by(id=result.id_).first()
-

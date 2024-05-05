@@ -1,7 +1,9 @@
 from articles.infrastructure.api.service import (
     ArticleApiService, 
     CategoryApiService, 
-    TagApiService
+    TagApiService,
+    LanguageApiService,
+    TranslationApiService
 )
 from articles import create_app
 from articles.config import TestingConfig
@@ -15,12 +17,17 @@ import pytest
 def mock_services(
     article_api_service: ArticleApiService, 
     category_api_service: CategoryApiService, 
-    tag_api_service: TagApiService
+    tag_api_service: TagApiService,
+    language_api_service: LanguageApiService,
+    translation_api_service: TranslationApiService
     ) -> None:
     with patch.multiple('articles.infrastructure.api.routes',
                         article_service=article_api_service,
                         category_service=category_api_service,
-                        tag_service=tag_api_service):
+                        tag_service=tag_api_service,
+                        language_service=language_api_service,
+                        translation_service=translation_api_service
+        ):
         yield
 
 

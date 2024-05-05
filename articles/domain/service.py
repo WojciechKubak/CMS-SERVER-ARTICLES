@@ -1,15 +1,23 @@
 from articles.application.port.input import (
     CategoryApiInputPort, 
     ArticleApiInputPort, 
-    TagApiInputPort
+    TagApiInputPort,
+    TranslationApiInputPort,
+    LanguageApiInputPort,
+    ArticleTranslationUseCase,
+    ArticleTranslationEventConsumer
 )
 from articles.application.port.output import (
     CategoryDbOutputPort, 
     ArticleDbOutputPort, 
     TagDbOutputPort, 
-    FileStorageOutputAdapter
+    TranslationDbOutputPort,
+    LanguageDbOutputPort,
+    FileStorageOutputAdapter,
+    ArticleEventPublisher,
 )
-from articles.domain.model import Category, Article, Tag
+from articles.domain.event import ArticleTranslationEvent, ArticleTranslatedEvent
+from articles.domain.model import Category, Article, Tag, Translation, Language
 from dataclasses import dataclass
 
 
@@ -57,21 +65,22 @@ class ArticleDomainService(ArticleApiInputPort):
     def create_article(self, article: Article) -> Article:
         if self.article_db_adapter.get_article_by_title(article.title):
             raise ValueError('Article title already exists')
-        if not (category := self.category_db_adapter.get_category_by_id(article.category.id_)):
+        if not (category := self.category_db_adapter.get_category_by_id(article.category)):
             raise ValueError('Category does not exist')
-        tags_id = [tag.id_ for tag in article.tags]
-        if len(tags := self.tag_db_adapter.get_tags_by_id(tags_id)) != len(tags_id):
+        if len(tags := self.tag_db_adapter.get_tags_by_id(article.tags)) != len(article.tags):
             raise ValueError('Tag does not exist')
         
-        content_path = self.storage_manager.upload_article_content(article)  
+        content_path = self.storage_manager.upload_content(article.content)  
         article_to_add = article\
-            .with_category_and_tags(category, tags)\
-            .with_content(content_path)
+            .change_category_and_tags(category, tags)\
+            .change_content(content_path)
 
-        added_article = self.article_db_adapter.save_article(article_to_add)
-        return added_article.with_content(article.content)
+        added_article = self.article_db_adapter \
+            .save_article(article_to_add) \
+            .change_content(article.content)
+        
+        return added_article
 
-    
     def update_article(self, article: Article) -> Article:
         article_by_id = self.article_db_adapter.get_article_by_id(article.id_)
         if not article_by_id:
@@ -79,22 +88,26 @@ class ArticleDomainService(ArticleApiInputPort):
         article_by_title = self.article_db_adapter.get_article_by_title(article.title)
         if article_by_title and article_by_title.id_ != article.id_:
             raise ValueError('Article title already exists')
-        if not (category := self.category_db_adapter.get_category_by_id(article.category.id_)):
+        category_by_id = self.category_db_adapter.get_category_by_id(article.category)
+        if not category_by_id:
             raise ValueError('Category does not exist')
-        tags_id = [tag.id_ for tag in article.tags]
-        if len(tags := self.tag_db_adapter.get_tags_by_id(tags_id)) != len(tags_id):
+        tags_by_id = self.tag_db_adapter.get_tags_by_id(article.tags)
+        if len(tags_by_id) != len(article.tags):
             raise ValueError('Tag does not exist')
         
-        article_to_update = article.with_category_and_tags(category, tags)
-        self.storage_manager.update_article_content(article_by_id, article.content)
+        article_to_update = article.change_category_and_tags(
+            category_by_id, tags_by_id)
+        self.storage_manager.update_content(article_by_id.content, article.content)
 
-        return self.article_db_adapter.update_article(article_to_update)
+        updated_article = self.article_db_adapter.update_article(article_to_update)
+
+        return updated_article
 
     def delete_article(self, id_: int) -> int:
         article_by_id = self.article_db_adapter.get_article_by_id(id_)
         if not article_by_id:
             raise ValueError('Article does not exist')
-        self.storage_manager.delete_article_content(article_by_id)
+        self.storage_manager.delete_content(article_by_id.content)
         self.article_db_adapter.delete_article(id_)
         
         return id_
@@ -102,8 +115,8 @@ class ArticleDomainService(ArticleApiInputPort):
     def get_article_by_id(self, id_: int) -> Article:
         if not (article := self.article_db_adapter.get_article_by_id(id_)):
             raise ValueError('Article does not exist')
-        content = self.storage_manager.read_article_content(article)
-        return article.with_content(content)
+        content = self.storage_manager.read_content(article.content)
+        return article.change_content(content)
 
     def get_articles_with_category(self, category_id: int) -> list[Article]:
         if not self.category_db_adapter.get_category_by_id(category_id):
@@ -111,7 +124,7 @@ class ArticleDomainService(ArticleApiInputPort):
         return self.article_db_adapter.get_articles_with_category(category_id)
 
     def get_all_articles(self) -> list[Article]:
-        return [article.with_content(self.storage_manager.read_article_content(article)) 
+        return [article.change_content(self.storage_manager.read_content(article.content)) 
                 for article in self.article_db_adapter.get_all_articles()]
 
 
@@ -147,3 +160,92 @@ class TagDomainService(TagApiInputPort):
 
     def get_all_tags(self) -> list[Tag]:
         return self.tag_db_adapter.get_all_tags()
+
+
+@dataclass
+class TranslationDomainService(
+        TranslationApiInputPort,
+        ArticleTranslationUseCase, 
+        ArticleTranslationEventConsumer
+    ):
+    article_db_adapter: ArticleDbOutputPort
+    language_db_adapter: LanguageDbOutputPort
+    translation_db_adapter: TranslationDbOutputPort
+    storage_manager: FileStorageOutputAdapter
+    message_broker: ArticleEventPublisher
+
+    def get_translation_by_id(self, id_: int) -> Translation:
+        translation = self.translation_db_adapter.get_translation_by_id(id_)
+        if not translation:
+            raise ValueError('Translation does not exist')
+        content = self.storage_manager.read_content(translation.content)
+        translation.content = content
+        return translation
+    
+    def request_article_translation(self, article_id: int, language_id: str) -> Translation:
+        language = self.language_db_adapter.get_language_by_id(language_id)
+        if not language:
+            raise ValueError('Language does not exist')
+        article = self.article_db_adapter.get_article_by_id(article_id)
+        if not article:
+            raise ValueError('Article does not exist')
+        if self.translation_db_adapter.get_translation_by_article_and_language(
+            article_id, language_id):
+            raise ValueError('Translation already exists')
+        
+        translation_to_add = Translation.create_request(language, article)
+        added_translation = self.translation_db_adapter.save_translation(translation_to_add)
+        
+        article_translation_event = ArticleTranslationEvent.from_domain(article, language)
+        self.message_broker.publish_article_translation_request(article_translation_event)
+
+        return added_translation
+
+    def handle_translated_article(self, article_translated_event: ArticleTranslatedEvent) -> Translation:
+        if not self.article_db_adapter.get_article_by_id(article_translated_event.article_id):
+            raise ValueError('Article does not exist') 
+        if not self.language_db_adapter.get_language_by_id(article_translated_event.language_id):
+            raise ValueError('Language does not exist')
+        translation = self.translation_db_adapter.get_translation_by_article_and_language(
+            article_translated_event.article_id, 
+            article_translated_event.language_id
+        )
+        if not translation:
+            raise ValueError('Translation does not exist')
+        if translation.is_ready:
+            raise ValueError('Translation already published')
+        
+        translation = translation.publish(article_translated_event.content_path)
+        self.translation_db_adapter.update_translation(translation)
+
+        return translation
+
+
+@dataclass
+class LanguageDomainService(LanguageApiInputPort):
+    language_db_adapter: LanguageDbOutputPort
+
+    def create_language(self, language: Language) -> Language:
+        if self.language_db_adapter.get_language_by_name(language.name):
+            raise ValueError('Language name already exists')
+        added_language = self.language_db_adapter.save_language(language)
+        return added_language
+
+    def update_language(self, language: Language) -> Language:
+        if not self.language_db_adapter.get_language_by_id(language.id_):
+            raise ValueError('Language does not exist')
+        updated_language = self.language_db_adapter.update_language(language)
+        return updated_language
+
+    def delete_language(self, id_: str) -> None:
+        if not self.language_db_adapter.get_language_by_id(id_):
+            raise ValueError('Language does not exist')
+        self.language_db_adapter.delete_language(id_)
+
+    def get_language_by_id(self, id_: str) -> Language:
+        if not (language := self.language_db_adapter.get_language_by_id(id_)):
+            raise ValueError('Language does not exist')
+        return language
+
+    def get_all_languages(self) -> list[Language]:
+        return self.language_db_adapter.get_all_languages()

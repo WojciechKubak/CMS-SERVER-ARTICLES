@@ -1,6 +1,6 @@
 from articles.domain.service import ArticleDomainService
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity
-from articles.domain.model import Article, Category, Tag
+from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity, TagEntity
+from articles.domain.model import Article
 from sqlalchemy.orm import Session
 import pytest
 
@@ -14,8 +14,8 @@ class TestCreateArticle:
             id_=None,
             title='title',
             content='dummy',
-            category=Category(id_=1, name='name', description='dummy'),
-            tags=[]
+            category=1,
+            tags=[1, 2]
         )
         with pytest.raises(ValueError) as err:
             article_domain_service.create_article(article)
@@ -28,8 +28,8 @@ class TestCreateArticle:
             id_=None,
             title='title',
             content='dummy',
-            category=Category(id_=1, name='name', description='dummy'),
-            tags=[]
+            category=1,
+            tags=[1, 2]
         )
         with pytest.raises(ValueError) as err:
             article_domain_service.create_article(article)
@@ -42,22 +42,26 @@ class TestCreateArticle:
             id_=None,
             title='title',
             content='dummy',
-            category=Category(id_=1, name='name', description='dummy'),
-            tags=[Tag(id_=1, name='name')]
+            category=1,
+            tags=[1, 2]
         )
         with pytest.raises(ValueError) as err:
             article_domain_service.create_article(article)
             assert 'Tag does not exist' == str(err.value)
 
     def test_when_created(self, article_domain_service: ArticleDomainService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name'))
+        db_session.bulk_save_objects([
+            CategoryEntity(id=1, name=''),
+            TagEntity(id=1, name=''),
+            TagEntity(id=2, name='')
+        ])
         db_session.commit()
         article = Article(
             id_=None,
             title='title',
             content='dummy',
-            category=Category(id_=1, name='name', description='dummy'),
+            category=1,
             tags=[]
         )
-        result = article_domain_service.create_article(article)
+        article_domain_service.create_article(article)
         assert db_session.query(ArticleEntity).filter_by(title='title').first()

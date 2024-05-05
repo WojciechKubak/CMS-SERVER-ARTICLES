@@ -28,7 +28,7 @@ def test_upload_article_content() -> None:
         category=None, 
         tags=[]
     )
-    file_path = file_storage_adapter.upload_article_content(article)
+    file_path = file_storage_adapter.upload_content(article.content)
     response = s3.list_objects_v2(Bucket=bucket_name, Prefix=bucket_subfolder_name)
     assert file_path.startswith(bucket_subfolder_name)
     assert 'Contents' in response

@@ -30,7 +30,7 @@ def test_delete_article_content() -> None:
         category=None, 
         tags=[]
     )
-    file_storage_adapter.delete_article_content(article)
+    file_storage_adapter.delete_content(article.content)
     
     response = s3.list_objects_v2(Bucket=bucket_name)
     assert 'Contents' not in response

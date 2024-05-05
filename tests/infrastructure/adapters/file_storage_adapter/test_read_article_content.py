@@ -30,7 +30,7 @@ def test_read_article_content() -> None:
         category=None, 
         tags=[]
     )
-    result = file_storage_adapter.read_article_content(article)
+    result = file_storage_adapter.read_content(article.content)
 
     response = s3.get_object(Bucket=bucket_name, Key=file_path)
     content = response['Body'].read().decode('utf-8')

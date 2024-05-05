@@ -1,4 +1,5 @@
-from articles.domain.model import Category, Article, Tag
+from articles.domain.model import Category, Article, Tag, Translation, Language
+from articles.domain.event import ArticleTranslatedEvent
 from abc import ABC, abstractmethod
 
 
@@ -72,4 +73,48 @@ class TagApiInputPort(ABC):
 
     @abstractmethod
     def get_all_tags(self) -> list[Tag]:
+        pass
+
+
+class TranslationApiInputPort(ABC):
+
+    @abstractmethod
+    def get_translation_by_id(self, id_: int) -> Translation:
+        pass
+
+
+class LanguageApiInputPort(ABC):
+
+    @abstractmethod
+    def create_language(self, language: Language) -> Language:
+        pass
+
+    @abstractmethod
+    def update_language(self, language: Language) -> Language:
+        pass
+
+    @abstractmethod
+    def delete_language(self, id_: int) -> int:
+        pass
+
+    @abstractmethod
+    def get_language_by_id(self, id_: int) -> Language:
+        pass
+
+    @abstractmethod
+    def get_all_languages(self) -> list[Language]:
+        pass
+
+
+class ArticleTranslationUseCase(ABC):
+
+    @abstractmethod
+    def request_article_translation(self, article_id: int, language_id: int) -> Translation:
+        pass
+
+
+class ArticleTranslationEventConsumer(ABC):
+
+    @abstractmethod
+    def handle_translated_article(self, article_translated_event: ArticleTranslatedEvent) -> Translation:
         pass

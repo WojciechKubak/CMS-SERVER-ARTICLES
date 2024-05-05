@@ -1,4 +1,10 @@
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity, TagEntity
+from articles.infrastructure.db.entity import (
+    ArticleEntity, 
+    CategoryEntity, 
+    TagEntity,
+    LanguageEntity,
+    TranslationEntity
+)
 from articles.infrastructure.db.entity import Base
 from dataclasses import dataclass
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -85,7 +91,7 @@ class ArticleRepository(CrudRepositoryORM[ArticleEntity]):
     def find_by_category_id(self, category_id: int) -> list[ArticleEntity]:
         return self.session.query(self.entity).filter_by(category_id=category_id).all()
 
-
+    
 @dataclass
 class CategoryRepository(CrudRepositoryORM[CategoryEntity]):
 
@@ -104,3 +110,22 @@ class TagRepository(CrudRepositoryORM[TagEntity]):
     @transactional
     def find_many_by_id(self, ids: list[int]) -> list[TagEntity]:
         return self.session.query(self.entity).filter(self.entity.id.in_(ids)).all()
+
+
+@dataclass
+class TranslationRepository(CrudRepositoryORM[TranslationEntity]):
+    
+    @transactional
+    def find_by_article_and_language(self, article_id: int, language_id: int) -> TranslationEntity | None:
+        return self.session.query(self.entity).filter(
+            self.entity.article_id == article_id,
+            self.entity.language_id == language_id
+        ).first()
+
+
+@dataclass
+class LanguageRepository(CrudRepositoryORM[LanguageEntity]):
+    
+    @transactional
+    def find_by_name(self, name: str) -> LanguageEntity | None:
+        return self.session.query(self.entity).filter_by(name=name).first()

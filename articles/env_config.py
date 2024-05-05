@@ -1,7 +1,15 @@
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
 
 DEBUG_MODE = int(os.environ.get('DEBUG', 1))
+
+BROKER_URI = os.getenv('BROKER_URI')
+GROUP_ID = os.getenv('GROUP_ID')
+TRANSLATED_ARTICLES_TOPIC = os.getenv('TRANSLATED_ARTICLES_TOPIC')
+TRANSLATION_REQUESTS_TOPIC = os.getenv('TRANSLATION_REQUESTS_TOPIC')
+TRANSLATION_UPDATES_TOPIC = os.getenv('TRANSLATION_UPDATES_TOPIC')
 
 S3_BUCKET_CONFIG = {
     'access_key_id': os.getenv("ACCESS_KEY_ID"),
