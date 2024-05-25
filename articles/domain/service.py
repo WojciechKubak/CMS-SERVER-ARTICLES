@@ -15,8 +15,14 @@ from articles.application.port.output import (
     LanguageDbOutputPort,
     FileStorageOutputAdapter,
     ArticleEventPublisher,
+    LanguageEventPublisher
 )
-from articles.domain.event import ArticleTranslationEvent, ArticleTranslatedEvent
+from articles.domain.event import (
+    TranslationRequestEvent, 
+    ArticleTranslatedEvent,
+    LanguageEvent,
+    LanguageEventType
+)
 from articles.domain.model import Category, Article, Tag, Translation, Language
 from dataclasses import dataclass
 
@@ -196,8 +202,8 @@ class TranslationDomainService(
         translation_to_add = Translation.create_request(language, article)
         added_translation = self.translation_db_adapter.save_translation(translation_to_add)
         
-        article_translation_event = ArticleTranslationEvent.from_domain(article, language)
-        self.message_broker.publish_article_translation_request(article_translation_event)
+        article_translation_event = TranslationRequestEvent.from_domain(article, language)
+        self.message_broker.publish_translation_request(article_translation_event)
 
         return added_translation
 
@@ -224,22 +230,39 @@ class TranslationDomainService(
 @dataclass
 class LanguageDomainService(LanguageApiInputPort):
     language_db_adapter: LanguageDbOutputPort
+    language_event_publisher: LanguageEventPublisher
 
     def create_language(self, language: Language) -> Language:
         if self.language_db_adapter.get_language_by_name(language.name):
             raise ValueError('Language name already exists')
         added_language = self.language_db_adapter.save_language(language)
+
+        language_event = LanguageEvent.from_domain(
+            added_language, LanguageEventType.CREATE)
+        self.language_event_publisher.publish_language_event(language_event)
+
         return added_language
 
     def update_language(self, language: Language) -> Language:
         if not self.language_db_adapter.get_language_by_id(language.id_):
             raise ValueError('Language does not exist')
         updated_language = self.language_db_adapter.update_language(language)
+
+        language_event = LanguageEvent.from_domain(
+            updated_language, LanguageEventType.UPDATE)
+        self.language_event_publisher.publish_language_event(language_event)
+
         return updated_language
 
     def delete_language(self, id_: str) -> None:
         if not self.language_db_adapter.get_language_by_id(id_):
             raise ValueError('Language does not exist')
+        
+        language_to_delete = self.language_db_adapter.get_language_by_id(id_)
+        language_event = LanguageEvent.from_domain(
+            language_to_delete, LanguageEventType.DELETE)
+        self.language_event_publisher.publish_language_event(language_event)
+
         self.language_db_adapter.delete_language(id_)
 
     def get_language_by_id(self, id_: str) -> Language:

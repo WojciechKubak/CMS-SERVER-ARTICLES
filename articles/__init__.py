@@ -1,5 +1,5 @@
 from articles.config import Config
-from articles.env_config import TRANSLATED_ARTICLES_TOPIC
+from articles.infrastructure.broker.setup import setup_start_pooling
 from articles.infrastructure.api.routes import (
     CategoryResource,
     CategoryIdResource,
@@ -17,11 +17,9 @@ from articles.infrastructure.api.routes import (
     LanguageResource,
     LanguageListResource
 )
-from articles.infrastructure.broker.consumer import article_translation_consumer
-from articles.infrastructure.broker.configuration import kafka_manager
 from flask import Flask, Response, make_response
 from flask_restful import Api
-import threading
+from flask_executor import Executor
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -31,12 +29,8 @@ def create_app(config: Config) -> Flask:
     app = Flask(__name__)
     app.config.from_object(config)
 
-    consume_thread = threading.Thread(
-        target=kafka_manager.consume_messages, 
-        args=(TRANSLATED_ARTICLES_TOPIC, article_translation_consumer.handle_event,),
-        daemon=True
-    )
-    consume_thread.start()
+    executor = Executor(app)
+    setup_start_pooling(app, executor)
 
     api = Api(app, prefix='/articles')
     api.add_resource(CategoryResource, '/categories')

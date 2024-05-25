@@ -7,16 +7,16 @@ from articles.infrastructure.db.entity import (
     CategoryEntity
 )
 from sqlalchemy.orm import Session
-from datetime import datetime
 import pytest
 
 
 class TestHandleTranslatedArticle:
     article_translated_event = ArticleTranslatedEvent(
         article_id=1, 
-        language_id=1, 
+        title='title',
         content_path='path', 
-        date=datetime.now()
+        language_id=1, 
+        author_id=1
     )
 
     def test_when_no_article(self, translation_domain_service: TranslationDomainService) -> None:

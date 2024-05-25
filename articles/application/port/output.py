@@ -1,5 +1,5 @@
 from articles.domain.model import Category, Article, Tag, Translation, Language
-from articles.domain.event import ArticleTranslationEvent
+from articles.domain.event import TranslationRequestEvent, LanguageEvent
 from abc import ABC, abstractmethod
 
 
@@ -160,5 +160,12 @@ class FileStorageOutputAdapter(ABC):
 class ArticleEventPublisher(ABC):
 
     @abstractmethod
-    def publish_article_translation_request(self, article_translation_event: ArticleTranslationEvent) -> None:
+    def publish_translation_request(self, translation_request_event: TranslationRequestEvent) -> None:
+        pass
+
+
+class LanguageEventPublisher(ABC):
+
+    @abstractmethod
+    def publish_language_event(self, language_event: LanguageEvent) -> None:
         pass

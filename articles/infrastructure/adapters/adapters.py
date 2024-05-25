@@ -6,6 +6,7 @@ from articles.application.port.output import (
     TranslationDbOutputPort,
     FileStorageOutputAdapter,
     ArticleEventPublisher,
+    LanguageEventPublisher
 )
 from articles.infrastructure.db.repository import (
     CategoryRepository, 
@@ -28,9 +29,10 @@ from articles.domain.model import (
     Translation,
     Language,
 )
-from articles.domain.event import ArticleTranslationEvent
+from articles.domain.event import TranslationRequestEvent, LanguageEvent
 from articles.infrastructure.storage.manager import S3BucketManager
 from articles.infrastructure.broker.manager import ConfluentKafkaManager
+from articles.infrastructure.broker.dto import TranslationRequestDTO, LanguageChangeEvent
 from dataclasses import dataclass
 
 
@@ -206,11 +208,21 @@ class FileStorageAdapter(FileStorageOutputAdapter):
 
 
 @dataclass
-class MessageBrokerAdapter(ArticleEventPublisher):
+class ArticleMessageBroker(ArticleEventPublisher):
     kafka_manager: ConfluentKafkaManager
     translation_requests_topic: str
     translation_updates_topic: str
 
-    def publish_article_translation_request(self, article_created_event: ArticleTranslationEvent) -> None:
-        self.kafka_manager.produce_message(
-            self.translation_requests_topic, article_created_event.to_json())
+    def publish_translation_request(self, translation_request_event: TranslationRequestEvent) -> None:
+        dto = TranslationRequestDTO.from_domain(translation_request_event)
+        self.kafka_manager.produce_message(self.translation_requests_topic, dto)
+
+
+@dataclass
+class LanguageMessageBroker(LanguageEventPublisher):
+    kafka_manager: ConfluentKafkaManager
+    language_changes_topic: str
+
+    def publish_language_event(self, language_event: LanguageEvent) -> None:
+        dto = LanguageChangeEvent.from_domain(language_event)
+        self.kafka_manager.produce_message(self.language_changes_topic, dto)

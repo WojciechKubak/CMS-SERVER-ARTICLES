@@ -6,12 +6,14 @@ from articles.infrastructure.broker.manager import ConfluentKafkaManager
 def test_produce_message(mock_producer) -> None:
     kafka_manager = ConfluentKafkaManager(bootstrap_servers='localhost:9092', group_id='test_group')
     topic_name = 'test_topic'
-    message = {'key': 'value'}
+    
+    mock_dto = MagicMock()
+    mock_dto.to_dict.return_value = {'key': 'value'}
 
     mock_producer_instance = MagicMock()
     mock_producer.return_value = mock_producer_instance
 
-    kafka_manager.produce_message(topic_name, message)
+    kafka_manager.produce_message(topic_name, mock_dto)
 
     mock_producer.assert_called_once_with({'bootstrap.servers': 'localhost:9092'})
     mock_producer_instance.produce.assert_called_once_with(topic_name, '{"key": "value"}'.encode('utf-8'))

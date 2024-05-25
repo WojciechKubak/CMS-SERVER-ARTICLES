@@ -26,7 +26,8 @@ from articles.infrastructure.adapters.adapters import (
     TranslationDbAdapter,
     LanguageDbAdapter,
     FileStorageAdapter,
-    MessageBrokerAdapter
+    ArticleMessageBroker,
+    LanguageMessageBroker
 )
 from articles.infrastructure.broker.manager import ConfluentKafkaManager
 from articles.infrastructure.db.entity import Base
@@ -129,13 +130,22 @@ def category_domain_service(category_db_adapter: CategoryDbAdapter) -> CategoryD
 
 
 @pytest.fixture(scope='session')
-def language_domain_service(language_db_adapter: LanguageDbAdapter) -> LanguageDomainService:
-    return LanguageDomainService(language_db_adapter)
+def language_domain_service(
+    language_db_adapter: LanguageDbAdapter,
+    language_message_broker: LanguageMessageBroker
+    ) -> LanguageDomainService:
+    return LanguageDomainService(language_db_adapter, language_message_broker)
 
 
 @pytest.fixture(scope='session')
-def message_broker_adapter() -> MessageBrokerAdapter:
-    mock = MagicMock(spec=MessageBrokerAdapter)
+def article_message_broker() -> ArticleMessageBroker:
+    mock = MagicMock(spec=ArticleMessageBroker)
+    mock.return_value = None
+    return mock
+
+@pytest.fixture(scope='session')
+def language_message_broker() -> LanguageMessageBroker:
+    mock = MagicMock(spec=LanguageMessageBroker)
     mock.return_value = None
     return mock
 
@@ -153,14 +163,14 @@ def translation_domain_service(
     language_db_adapter: LanguageDbAdapter,
     translation_db_adapter: TranslationDbAdapter,
     file_storage_adapter: FileStorageAdapter,
-    message_broker_adapter: MessageBrokerAdapter
+    article_message_broker: ArticleMessageBroker
 ) -> TranslationDomainService:
     return TranslationDomainService(
         article_db_adapter,
         language_db_adapter,
         translation_db_adapter,
         file_storage_adapter,
-        message_broker_adapter
+        article_message_broker
     )
 
 

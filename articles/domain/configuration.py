@@ -12,7 +12,8 @@ from articles.infrastructure.adapters.configuration import (
     translation_db_adapter,
     language_db_adapter,
     storage_manager,
-    message_broker
+    article_message_broker,
+    language_message_broker
 )
 
 
@@ -27,8 +28,8 @@ domain_translation_service = TranslationDomainService(
     language_db_adapter,
     translation_db_adapter,
     storage_manager,
-    message_broker
+    article_message_broker
 )
 domain_category_service = CategoryDomainService(category_db_adapter)
 domain_tag_service = TagDomainService(tag_db_adapter)
-domain_language_service = LanguageDomainService(language_db_adapter)
+domain_language_service = LanguageDomainService(language_db_adapter, language_message_broker)
