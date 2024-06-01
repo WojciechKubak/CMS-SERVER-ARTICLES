@@ -1,11 +1,8 @@
 from articles.infrastructure.adapters.adapters import ArticleDbAdapter
-from articles.infrastructure.db.entity import ArticleEntity
-from sqlalchemy.orm import Session
+from tests.factory import ArticleEntityFactory
 
 
-def test_get_all_articles(article_db_adapter: ArticleDbAdapter, db_session: Session) -> None:
-    articles_dto = [ArticleEntity(title='title'), ArticleEntity(title='title')]
-    db_session.bulk_save_objects(articles_dto)
-    db_session.commit()
+def test_get_all_articles(article_db_adapter: ArticleDbAdapter) -> None:
+    articles = ArticleEntityFactory.create_batch(5)
     result = article_db_adapter.get_all_articles()
-    assert len(result)
+    assert len(articles) == len(result)

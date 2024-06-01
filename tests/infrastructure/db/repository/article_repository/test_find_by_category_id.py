@@ -1,13 +1,15 @@
-from articles.infrastructure.db.repository import ArticleRepository
-from articles.infrastructure.db.entity import CategoryEntity, ArticleEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.repository import ArticleRepository
+from tests.factory import ArticleEntityFactory, CategoryEntityFactory
 
 
-def test_find_many_by_id(article_repository: ArticleRepository, db_session: Session) -> None:
-    category = CategoryEntity(name='category')
-    articles = [ArticleEntity(title='', category_id=1), ArticleEntity(title='', category_id=1)]
-    db_session.bulk_save_objects([category, *articles])
-    db_session.commit()
+def test_find_many_by_id(article_repository: ArticleRepository) -> None:
+    category = CategoryEntityFactory()
+    articles = ArticleEntityFactory.create_batch(
+        5,
+        category_id=category.id,
+        category=category
+    )
 
-    result = article_repository.find_by_category_id(1)
-    assert len(articles) == len(result)
+    result = article_repository.find_by_category_id(category.id)
+
+    assert articles == result

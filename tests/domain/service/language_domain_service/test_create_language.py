@@ -1,21 +1,36 @@
-from articles.domain.service import LanguageDomainService
-from articles.infrastructure.db.entity import LanguageEntity
-from articles.domain.model import Language
-from sqlalchemy.orm import Session
+from articles.domain.service import LanguageService
+from articles.domain.errors import LanguageNameExistsError
+from articles.infrastructure.persistance.entity import LanguageEntity
+from tests.factory import LanguageEntityFactory, LanguageFactory
+from unittest.mock import patch
 import pytest
 
 
 class TestCreateLanguage:
 
-    def test_when_name_exists(self, language_domain_service: LanguageDomainService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(name='name', code='CODE'))
-        db_session.commit()
-        language = Language(id_=None, name='name', code='CODE')
-        with pytest.raises(ValueError) as err:
-            language_domain_service.create_language(language)
-            assert 'Language name already exists' == str(err.value)
+    def test_when_name_exists(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        language_dto = LanguageEntityFactory()
+        language = LanguageFactory(name=language_dto.name)
 
-    def test_when_created(self, language_domain_service: LanguageDomainService, db_session: Session) -> None:
-        language = Language(id_=None, name='name', code='CODE')
-        result = language_domain_service.create_language(language)
-        assert db_session.query(LanguageEntity).filter_by(id=result.id_).first()
+        with pytest.raises(LanguageNameExistsError) as e:
+            language_domain_service.create_language(language)
+
+        assert LanguageNameExistsError().message == str(e.value)
+
+    def test_when_created(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        language = LanguageFactory()
+
+        with patch.object(
+            language_domain_service.language_event_publisher,
+            'publish_event'
+        ) as publish:
+            result = language_domain_service.create_language(language)
+
+        publish.assert_called_once()
+        assert LanguageEntity.query.filter_by(id=result.id_).first()

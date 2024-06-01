@@ -1,10 +1,9 @@
 from articles.infrastructure.adapters.adapters import ArticleDbAdapter
-from articles.infrastructure.db.entity import ArticleEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import ArticleEntity
+from tests.factory import ArticleEntityFactory
 
 
-def test_delete_article(article_db_adapter: ArticleDbAdapter, db_session: Session) -> None:
-    db_session.add(ArticleEntity(id=1, title='title'))
-    db_session.commit()
-    article_db_adapter.delete_article(1)
-    assert not db_session.query(ArticleEntity).filter_by(id=1).first()
+def test_delete_article(article_db_adapter: ArticleDbAdapter) -> None:
+    article = ArticleEntityFactory()
+    article_db_adapter.delete_article(article.id)
+    assert not ArticleEntity.query.filter_by(id=article.id).first()

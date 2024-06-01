@@ -9,15 +9,19 @@ flask-restful = "*"
 python-dotenv = "*"
 gunicorn = "*"
 alembic = "*"
-pytest = "*"
 mysqlclient = "*"
 sqlalchemy = "*"
 boto3 = "*"
-moto = {version = "*", extras = ["all", "ec2", "s3"]}
 confluent-kafka = "*"
 flask-executor = "*"
+flask-sqlalchemy = "*"
+flask-migrate = "*"
 
 [dev-packages]
+flake8 = "*"
+factory-boy = "*"
+moto = "*"
+pytest = "*"
 
 [requires]
 python_version = "3.12"

@@ -1,29 +1,55 @@
-from articles.domain.service import LanguageDomainService
-from articles.infrastructure.db.entity import LanguageEntity
-from articles.domain.model import Language
-from sqlalchemy.orm import Session
+from articles.domain.service import LanguageService
+from articles.domain.errors import (
+    LanguageNameExistsError,
+    LanguageNotFoundError
+)
+from articles.infrastructure.persistance.entity import LanguageEntity
+from tests.factory import LanguageEntityFactory, LanguageFactory
+from unittest.mock import patch
 import pytest
 
 
 class TestUpdateLanguage:
 
-    def test_when_not_found(self, language_domain_service: LanguageDomainService) -> None:
-        language = Language(id_=1, name='name', code='CODE')
-        with pytest.raises(ValueError) as err:
+    def test_when_not_found(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        language = LanguageFactory()
+        with pytest.raises(LanguageNotFoundError) as e:
             language_domain_service.update_language(language)
-            assert 'Language does not exist' == str(err.value)
+        assert LanguageNotFoundError().message == str(e.value)
 
-    def test_when_name_exists(self, language_domain_service: LanguageDomainService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-        db_session.commit()
-        language = Language(id_=2, name='name', code='CODE')
-        with pytest.raises(ValueError) as err:
+    def test_when_name_exists(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        language_dto_first, language_dto_second = \
+            LanguageEntityFactory.create_batch(2)
+        language = LanguageFactory(
+            id_=language_dto_first.id,
+            name=language_dto_second.name
+        )
+
+        with pytest.raises(LanguageNameExistsError) as e:
             language_domain_service.update_language(language)
-            assert 'Language name already exists' == str(err.value)
 
-    def test_when_updated(self, language_domain_service: LanguageDomainService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-        db_session.commit()
-        language = Language(id_=1, name='updated_name', code='NEW')
-        result = language_domain_service.update_language(language)
-        assert 'NEW' == db_session.query(LanguageEntity).filter_by(id=result.id_).first().code
+        assert LanguageNameExistsError().message == str(e.value)
+
+    def test_when_updated(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        language_dto = LanguageEntityFactory()
+        new_name = f'new_{language_dto.name}'
+        language = LanguageFactory(id_=language_dto.id, name=new_name)
+
+        with patch.object(
+            language_domain_service.language_event_publisher,
+            'publish_event'
+        ) as publish:
+            result = language_domain_service.update_language(language)
+
+        publish.assert_called_once()
+        assert LanguageEntity.query.filter_by(id=result.id_).first().name \
+            == new_name

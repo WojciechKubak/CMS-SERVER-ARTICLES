@@ -1,9 +1,9 @@
-from articles.infrastructure.db.entity import TagEntity
-from articles.domain.model import Tag
+from articles.infrastructure.persistance.entity import TagEntity
+from tests.factory import TagFactory
 
 
 def test_from_domain() -> None:
-    tag = Tag(id_=1, name='name')
+    tag = TagFactory()
     result = TagEntity.from_domain(tag)
     assert tag.id_ == result.id
     assert tag.name == result.name

@@ -54,7 +54,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: gunicorn --bind 0.0.0.0:8002 --workers 4 'articles.app:app' --reload
+    command: gunicorn --bind 0.0.0.0:8002 --workers 4 'main:app' --reload
     volumes:
       - ./:/articles-service
     depends_on:

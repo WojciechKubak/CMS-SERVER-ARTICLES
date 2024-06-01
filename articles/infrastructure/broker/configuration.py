@@ -1,5 +1,5 @@
-from articles.infrastructure.broker.manager import ConfluentKafkaManager
+from articles.infrastructure.broker.kafka import KafkaService
 from articles.env_config import BROKER_URI, GROUP_ID
 
 
-kafka_manager = ConfluentKafkaManager(BROKER_URI, GROUP_ID)
+kafka_manager = KafkaService(BROKER_URI, GROUP_ID)

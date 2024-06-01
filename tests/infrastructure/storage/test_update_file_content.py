@@ -1,29 +1,17 @@
-from articles.infrastructure.storage.manager import S3BucketManager
-from moto import mock_aws
-import boto3
+from articles.infrastructure.storage.boto3 import Boto3Service
+from boto3 import resource
 
 
-@mock_aws
-def test_update_file_content() -> None:
-    bucket_name = 'my-bucket'
-    bucket_subfolder_name = 'my-subfolder'
-    s3 = boto3.client('s3')
-    s3.create_bucket(Bucket=bucket_name)
+def test_update_file_content(
+        conn: resource,
+        boto3_service: Boto3Service,
+        bucket_name: str
+) -> None:
+    conn.Bucket(bucket_name).put_object(Key='myfile.txt', Body='Hello, World!')
+    updated_file_content = 'Hello!'
 
-    s3_bucket_manager = S3BucketManager(
-        access_key_id='',
-        secret_access_key='',
-        bucket_name=bucket_name,
-        bucket_subfolder_name=bucket_subfolder_name
-    )
+    boto3_service.update_file_content('myfile.txt', updated_file_content)
+    expected = conn.Object(bucket_name, 'myfile.txt').get()['Body'].read() \
+        .decode('utf-8')
 
-    content = 'Hello, World!'
-    file_path = s3_bucket_manager.upload_to_file(content)
-
-    new_content = 'Updated content'
-    s3_bucket_manager.update_file_content(file_path, new_content)
-
-    response = s3.get_object(Bucket=bucket_name, Key=file_path)
-    updated_content = response['Body'].read().decode('utf-8')
-
-    assert updated_content == new_content
+    assert expected == updated_file_content

@@ -1,17 +1,17 @@
 from articles.infrastructure.adapters.adapters import LanguageDbAdapter
-from articles.infrastructure.db.entity import LanguageEntity
-from sqlalchemy.orm import Session
+from tests.factory import LanguageEntityFactory
 
 
 class TestGetLanguageById:
 
-    def test_when_not_found(self, language_db_adapter: LanguageDbAdapter, db_session: Session) -> None:
-        result = language_db_adapter.get_language_by_id(1111)
+    def test_when_not_found(
+            self,
+            language_db_adapter: LanguageDbAdapter
+    ) -> None:
+        result = language_db_adapter.get_language_by_id(999)
         assert not result
-        assert not db_session.query(LanguageEntity).filter_by(id=1111).first()
 
-    def test_when_found(self, language_db_adapter: LanguageDbAdapter, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-        db_session.commit()
-        result = language_db_adapter.get_language_by_id(1)
-        assert 1 == result.id_
+    def test_when_found(self, language_db_adapter: LanguageDbAdapter) -> None:
+        language = LanguageEntityFactory()
+        result = language_db_adapter.get_language_by_id(language.id)
+        assert language.id == result.id_

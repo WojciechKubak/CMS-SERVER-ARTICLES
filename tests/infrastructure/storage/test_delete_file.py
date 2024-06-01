@@ -1,26 +1,18 @@
-from articles.infrastructure.storage.manager import S3BucketManager
-from moto import mock_aws
-import boto3
+from articles.infrastructure.storage.boto3 import Boto3Service
+from botocore.exceptions import ClientError
+from boto3 import resource
+import pytest
 
 
-@mock_aws
-def test_delete_file() -> None:
-    bucket_name = 'my-bucket'
-    bucket_subfolder_name = 'my-subfolder'
-    s3 = boto3.client('s3')
-    s3.create_bucket(Bucket=bucket_name)
+def test_delete_file(
+        conn: resource,
+        boto3_service: Boto3Service,
+        bucket_name: str
+) -> None:
+    conn.Bucket(bucket_name).put_object(Key='myfile.txt', Body='content')
+    boto3_service.delete_file('myfile.txt')
 
-    s3_bucket_manager = S3BucketManager(
-        access_key_id='',
-        secret_access_key='',
-        bucket_name=bucket_name,
-        bucket_subfolder_name=bucket_subfolder_name
-    )
+    with pytest.raises(ClientError) as e:
+        conn.Object(bucket_name, 'myfile.txt').load()
 
-    content = 'Hello, World!'
-    file_path = s3_bucket_manager.upload_to_file(content)
-
-    s3_bucket_manager.delete_file(file_path)
-
-    response = s3.list_objects_v2(Bucket=bucket_name)
-    assert 'Contents' not in response
+    assert 'not found' in str(e.value).lower()

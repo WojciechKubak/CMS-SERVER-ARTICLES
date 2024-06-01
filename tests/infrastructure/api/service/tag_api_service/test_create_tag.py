@@ -1,27 +1,37 @@
 from articles.infrastructure.api.service import TagApiService
-from articles.infrastructure.db.entity import TagEntity
 from articles.infrastructure.api.dto import TagDTO
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestCreateTag:
 
-    def test_when_name_exists(self, tag_api_service: TagApiService, db_session: Session) -> None:
-        db_session.add(TagEntity(name='name'))
-        db_session.commit()
-        tag_dto = TagDTO(
-            id_=None,
-            name='name'
-        )
-        with pytest.raises(ValueError) as err:
-            tag_api_service.create_tag(tag_dto)
-            assert 'Tag name already exists' == str(err.value)
+    def test_when_domain_error(self, tag_api_service: TagApiService) -> None:
+        mock_dto = MagicMock()
 
-    def test_when_created(self, tag_api_service: TagApiService, db_session: Session) -> None:
-        tag_dto = TagDTO(
-            id_=None,
-            name='name'
+        with patch.object(
+            tag_api_service.tag_service,
+            'create_tag',
+        ) as mock_create_tag:
+            mock_create_tag.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                tag_api_service.create_tag(mock_dto)
+
+        assert DomainError().message == str(e.value)
+
+    def test_when_created(self, tag_api_service: TagApiService) -> None:
+        mock_dto = MagicMock()
+
+        with patch.object(
+            tag_api_service.tag_service,
+            'create_tag',
+        ) as mock_create_tag:
+            mock_create_tag.return_value = MagicMock()
+            result = tag_api_service.create_tag(mock_dto)
+
+        mock_create_tag.assert_called_once_with(
+            mock_dto.to_domain()
         )
-        result = tag_api_service.create_tag(tag_dto)
-        assert db_session.query(TagEntity).filter_by(id=result.id_).first()
+        assert isinstance(result, TagDTO)

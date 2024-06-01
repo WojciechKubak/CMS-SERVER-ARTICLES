@@ -1,11 +1,8 @@
 from articles.infrastructure.adapters.adapters import CategoryDbAdapter
-from articles.infrastructure.db.entity import CategoryEntity
-from sqlalchemy.orm import Session
+from tests.factory import CategoryEntityFactory
 
 
-def test_get_all_categories(category_db_adapter: CategoryDbAdapter, db_session: Session) -> None:
-    categories_dto = [CategoryEntity(name='name', description='dummy'), CategoryEntity(name='name', description='dummy')]
-    db_session.bulk_save_objects(categories_dto)
-    db_session.commit()
+def test_get_all_categories(category_db_adapter: CategoryDbAdapter) -> None:
+    categories = CategoryEntityFactory.create_batch(5)
     result = category_db_adapter.get_all_categories()
-    assert len(categories_dto) == len(result)
+    assert len(categories) == len(result)

@@ -1,15 +1,14 @@
 from articles.infrastructure.adapters.adapters import CategoryDbAdapter
-from articles.infrastructure.db.entity import CategoryEntity
-from articles.domain.model import Category
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import CategoryEntity
+from tests.factory import CategoryEntityFactory, CategoryFactory
 
 
-def test_update_category(category_db_adapter: CategoryDbAdapter, db_session: Session) -> None:
-    db_session.add(CategoryEntity(id=1, name='name', description=''))
-    db_session.commit()
+def test_update_category(category_db_adapter: CategoryDbAdapter) -> None:
+    category_dao = CategoryEntityFactory()
+    new_name = f'new_{category_dao.name}'
+    category = CategoryFactory(name=new_name)
 
-    category = Category(id_=1, name='name', description='dummy')
     result = category_db_adapter.update_category(category)
 
-    assert category == result
-    assert db_session.query(CategoryEntity).filter_by(id=1).first().description == 'dummy'
+    assert CategoryEntity.query.filter_by(id=result.id_).first().name \
+        == new_name

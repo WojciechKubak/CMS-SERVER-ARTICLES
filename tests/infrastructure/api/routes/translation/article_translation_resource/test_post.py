@@ -1,45 +1,62 @@
-from articles.infrastructure.db.entity import (
-    TranslationEntity, 
-    LanguageEntity, 
-    ArticleEntity, 
-    CategoryEntity
-)
+from articles.infrastructure.api.errors import ApplicationError
 from flask.testing import Client
-from sqlalchemy.orm import Session
+from flask import url_for
+from unittest.mock import MagicMock, patch
 
 
-class TestRequestTranslation:
+class TestIdResourcePost:
+    resource_path = 'translation_service.request_translation'
 
-    def test_when_no_language(self, client: Client) -> None:
-        response = client.post('articles/1/languages/1')
+    def test_when_application_error(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        article_id, language_id = 1, 1
+
+        with patch(
+            f'{base_path}.{self.resource_path}'
+        ) as mock_create_translation:
+            mock_create_translation.side_effect = ApplicationError()
+            response = client.post(
+                url_for(
+                    'articletranslationresource',
+                    article_id=article_id,
+                    language_id=language_id
+                )
+            )
+
+        mock_create_translation.assert_called_once_with(
+            article_id, language_id
+        )
         assert 400 == response.status_code
-        assert b'Language does not exist' in response.data
 
-    def test_when_no_article(self, client: Client, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-        db_session.commit()
-        response = client.post('articles/1/languages/1')
-        assert 400 == response.status_code
-        assert b'Article does not exist' in response.data
+    def test_when_updated(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        article_id, language_id = 1, 1
+        mock_translation = MagicMock()
+        mock_translation.to_dict.return_value = {
+            'id': 1,
+            'is_ready': False
+        }
 
-    def test_when_translation_exists(self, client: Client, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            LanguageEntity(id=1, name='name', code='CODE'),
-            ArticleEntity(id=1, title='title'),
-            TranslationEntity(id=1, language_id=1, article_id=1)
-        ])
-        db_session.commit()
-        response = client.post('articles/1/languages/1')
-        assert 400 == response.status_code
-        assert b'Translation already exists' in response.data
+        with patch(
+            f'{base_path}.{self.resource_path}'
+        ) as mock_create_translation:
+            mock_create_translation.return_value = mock_translation
+            response = client.post(
+                url_for(
+                    'articletranslationresource',
+                    article_id=article_id,
+                    language_id=language_id
+                )
+            )
 
-    def test_when_translation_requested(self, client: Client, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            LanguageEntity(id=1, name='name', code='CODE'),
-            CategoryEntity(id=1, name='name'),
-            ArticleEntity(id=1, title='title', category_id=1)
-        ])
-        db_session.commit()
-        response = client.post('articles/1/languages/1')
-        assert 200 == response.status_code
-        assert db_session.query(TranslationEntity).filter_by(id=response.json['id']).first()
+        mock_create_translation.assert_called_once_with(
+            article_id, language_id
+        )
+        assert 201 == response.status_code
+        assert {'id': 1, 'is_ready': False} == response.get_json()

@@ -1,10 +1,9 @@
 from articles.infrastructure.adapters.adapters import LanguageDbAdapter
-from articles.infrastructure.db.entity import LanguageEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import LanguageEntity
+from tests.factory import LanguageEntityFactory
 
 
-def test_delete_language(db_session: Session, language_db_adapter: LanguageDbAdapter) -> None:
-    db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-    db_session.commit()
-    language_db_adapter.delete_language(1)
-    assert not db_session.query(LanguageEntity).filter_by(id=1).first()
+def test_delete_language(language_db_adapter: LanguageDbAdapter) -> None:
+    language = LanguageEntityFactory()
+    language_db_adapter.delete_language(language.id)
+    assert not LanguageEntity.query.filter_by(id=language.id).first()

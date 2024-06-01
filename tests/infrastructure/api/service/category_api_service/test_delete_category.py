@@ -1,18 +1,37 @@
 from articles.infrastructure.api.service import CategoryApiService
-from articles.infrastructure.db.entity import CategoryEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestDeleteCategory:
 
-    def test_when_not_found(self, category_api_service: CategoryApiService) -> None:
-        with pytest.raises(ValueError) as err:
-            category_api_service.delete_category(9999)
-        assert 'Category does not exist' == str(err.value)
+    def test_when_domain_error(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        with patch.object(
+            category_api_service.category_service,
+            'delete_category',
+        ) as mock_delete_category:
+            mock_delete_category.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                category_api_service.delete_category(999)
 
-    def test_when_deleted(self, category_api_service: CategoryApiService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name'))
-        db_session.commit()
-        result = category_api_service.delete_category(1)
-        assert not db_session.query(CategoryEntity).filter_by(id=result).first()
+        assert DomainError().message == str(e.value)
+
+    def test_when_deleted(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        id_to_delete = 1
+
+        with patch.object(
+            category_api_service.category_service,
+            'delete_category',
+        ) as mock_delete_category:
+            mock_delete_category.return_value = MagicMock()
+            category_api_service.delete_category(id_to_delete)
+
+        mock_delete_category.assert_called_once_with(id_to_delete)

@@ -1,109 +1,243 @@
-from articles.application.port.input import (
-    ArticleApiInputPort, 
-    CategoryApiInputPort, 
-    TagApiInputPort,
-    LanguageApiInputPort,
-    TranslationApiInputPort,
-    ArticleTranslationUseCase,
+from articles.application.ports.input import (
+    ArticleAPI,
+    CategoryAPI,
+    TagAPI,
+    LanguageAPI,
+    TranslationAPI,
+    TranslationRequestUseCase,
 )
-from articles.infrastructure.api.dto import CategoryDTO, TagDTO, ArticleDTO, LanguageDTO
-from articles.domain.model import Category, Article, Tag, Translation, Language
+from articles.infrastructure.api.errors import ApplicationError
+from articles.infrastructure.api.dto import (
+    LanguageDTO,
+    LanguageCreateDTO,
+    LanguageUpdateDTO,
+    CategoryDTO,
+    CategoryCreateDTO,
+    CategoryUpdateDTO,
+    ArticleDTO,
+    ArticleListDTO,
+    ArticleCreateDTO,
+    ArticleUpdateDTO,
+    TagDTO,
+    TagCreateDTO,
+    TagUpdateDTO,
+    TranslationDTO
+)
+from articles.domain.errors import DomainError
 from dataclasses import dataclass
 from typing import Union
 
 
 @dataclass
 class CategoryApiService:
-    category_service: CategoryApiInputPort
+    category_service: CategoryAPI
 
-    def create_category(self, category_dto: CategoryDTO) -> Category:
-        return self.category_service.create_category(category_dto.to_domain())
+    def create_category(
+            self,
+            category_create_dto: CategoryCreateDTO
+    ) -> CategoryDTO:
+        try:
+            result = self.category_service.create_category(
+                category_create_dto.to_domain()
+            )
+            return CategoryDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def update_category(self, category_dto: CategoryDTO) -> Category:
-        return self.category_service.update_category(category_dto.to_domain())
+    def update_category(
+            self,
+            category_update_dto: CategoryUpdateDTO
+    ) -> CategoryDTO:
+        try:
+            result = self.category_service.update_category(
+                category_update_dto.to_domain()
+            )
+            return CategoryDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
     def delete_category(self, id_: int) -> int:
-        return self.category_service.delete_category(id_)
+        try:
+            return self.category_service.delete_category(id_)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_category_by_id(self, id_: int) -> Category:
-        return self.category_service.get_category_by_id(id_)
+    def get_category_by_id(self, id_: int) -> CategoryDTO:
+        try:
+            result = self.category_service.get_category_by_id(id_)
+            return CategoryDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_all_categories(self) -> list[Category]:
-        return self.category_service.get_all_categories()
+    def get_all_categories(self) -> list[CategoryDTO]:
+        categories = self.category_service.get_all_categories()
+        return [CategoryDTO.from_domain(category) for category in categories]
 
 
 @dataclass
 class ArticleApiService:
-    article_service: ArticleApiInputPort
+    article_service: ArticleAPI
 
-    def create_article(self, article_dto: ArticleDTO) -> Article:
-        return self.article_service.create_article(article_dto.to_domain())
+    def create_article(
+            self,
+            article_create_dto: ArticleCreateDTO
+    ) -> ArticleDTO:
+        try:
+            result = self.article_service.create_article(
+                article_create_dto.to_domain()
+            )
+            return ArticleDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def update_article(self, article_dto: ArticleDTO) -> Article:
-        return self.article_service.update_article(article_dto.to_domain())
+    def update_article(
+            self,
+            article_update_dto: ArticleUpdateDTO
+    ) -> ArticleDTO:
+        try:
+            result = self.article_service.update_article(
+                article_update_dto.to_domain()
+            )
+            return ArticleDTO.from_dto(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
     def delete_article(self, id_: int) -> int:
-        return self.article_service.delete_article(id_)
+        try:
+            return self.article_service.delete_article(id_)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_article_by_id(self, id_: int) -> Article:
-        return self.article_service.get_article_by_id(id_)
+    def get_article_by_id(self, id_: int) -> ArticleDTO:
+        try:
+            result = self.article_service.get_article_by_id(id_)
+            return ArticleDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_articles_with_category(self, category_id: int) -> list[Article]:
-        return self.article_service.get_articles_with_category(category_id)
+    def get_articles_with_category(
+            self,
+            category_id: int
+    ) -> list[ArticleListDTO]:
+        try:
+            articles = self.article_service.get_articles_with_category(
+                category_id
+            )
+            return [
+                ArticleListDTO.from_domain(article)
+                for article in articles
+            ]
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_all_articles(self) -> list[Article]:
-        return self.article_service.get_all_articles()
-    
-    def request_article_translation(self, article_id: int, language_id: int) -> None:
-        return self.article_service.request_article_translation(article_id, language_id)
+    def get_all_articles(self) -> list[ArticleListDTO]:
+        result = self.article_service.get_all_articles()
+        return [ArticleListDTO.from_domain(article) for article in result]
 
 
 @dataclass
 class TagApiService:
-    tag_service: TagApiInputPort
+    tag_service: TagAPI
 
-    def create_tag(self, tag_dto: TagDTO) -> Tag:
-        return self.tag_service.create_tag(tag_dto.to_domain())
+    def create_tag(self, tag_create_dto: TagCreateDTO) -> TagDTO:
+        try:
+            result = self.tag_service.create_tag(tag_create_dto.to_domain())
+            return TagDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def update_tag(self, tag_dto: TagDTO) -> Tag:
-        return self.tag_service.update_tag(tag_dto.to_domain())
+    def update_tag(self, tag_update_dto: TagUpdateDTO) -> TagDTO:
+        try:
+            result = self.tag_service.update_tag(tag_update_dto.to_domain())
+            return TagDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
     def delete_tag(self, id_: int) -> int:
-        return self.tag_service.delete_tag(id_)
+        try:
+            self.tag_service.delete_tag(id_)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_tag_by_id(self, id_: int) -> Tag:
-        return self.tag_service.get_tag_by_id(id_)
+    def get_tag_by_id(self, id_: int) -> TagDTO:
+        try:
+            result = self.tag_service.get_tag_by_id(id_)
+            return TagDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def get_all_tags(self) -> list[Tag]:
-        return self.tag_service.get_all_tags()
+    def get_all_tags(self) -> list[TagDTO]:
+        tags = self.tag_service.get_all_tags()
+        return [TagDTO.from_domain(tag) for tag in tags]
 
 
 @dataclass
 class LanguageApiService:
-    language_service: LanguageApiInputPort
+    language_service: LanguageAPI
 
-    def create_language(self, language_dto: LanguageDTO) -> Language:
-        return self.language_service.create_language(language_dto.to_domain())
+    def create_language(
+            self,
+            language_create_dto: LanguageCreateDTO
+    ) -> LanguageDTO:
+        try:
+            result = self.language_service.create_language(
+                language_create_dto.to_domain()
+            )
+            return LanguageDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
 
-    def update_language(self, language_dto: LanguageDTO) -> Language:
-        return self.language_service.update_language(language_dto.to_domain())
-    
+    def update_language(
+            self,
+            language_update_dto: LanguageUpdateDTO
+    ) -> LanguageDTO:
+        try:
+            result = self.language_service.update_language(
+                language_update_dto.to_domain()
+            )
+            return LanguageDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
+
     def delete_language(self, id_: int) -> int:
-        return self.language_service.delete_language(id_)
-    
-    def get_language_by_id(self, id_: int) -> Language:
-        return self.language_service.get_language_by_id(id_)
-    
-    def get_all_languages(self) -> list[Language]:
-        return self.language_service.get_all_languages()
+        try:
+            return self.language_service.delete_language(id_)
+        except DomainError as e:
+            raise ApplicationError(str(e))
+
+    def get_language_by_id(self, id_: int) -> LanguageDTO:
+        try:
+            result = self.language_service.get_language_by_id(id_)
+            return LanguageDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
+
+    def get_all_languages(self) -> list[LanguageDTO]:
+        languages = self.language_service.get_all_languages()
+        return [LanguageDTO.from_domain(language) for language in languages]
 
 
 @dataclass
 class TranslationApiService:
-    translation_service: Union[TranslationApiInputPort, ArticleTranslationUseCase]
+    translation_service: Union[TranslationAPI, TranslationRequestUseCase]
 
-    def get_translation_by_id(self, id_: int) -> Translation:
-        return self.translation_service.get_translation_by_id(id_)
-    
-    def request_translation(self, article_id: int, language_id: int) -> Translation:
-        return self.translation_service.request_article_translation(article_id, language_id)
+    def get_translation_by_id(self, id_: int) -> TranslationDTO:
+        try:
+            result = self.translation_service.get_translation_by_id(id_)
+            return TranslationDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))
+
+    def request_translation(
+            self,
+            article_id: int,
+            language_id: int
+    ) -> TranslationDTO:
+        try:
+            result = self.translation_service.request_translation(
+                article_id,
+                language_id
+            )
+            return TranslationDTO.from_domain(result)
+        except DomainError as e:
+            raise ApplicationError(str(e))

@@ -1,21 +1,27 @@
 from articles.infrastructure.adapters.adapters import ArticleMessageBroker
-from articles.domain.event import TranslationRequestEvent
 from articles.infrastructure.broker.dto import TranslationRequestDTO
-from datetime import datetime
+from tests.factory import TranslationRequestEventFactory
 from unittest.mock import Mock
+import pytest
 
 
-def test_publish_translation_request() -> None:
+@pytest.fixture(scope='session')
+def mock_kafka_manager() -> ArticleMessageBroker:
     kafka_manager_mock = Mock()
-    adapter = ArticleMessageBroker(
+    return ArticleMessageBroker(
         kafka_manager=kafka_manager_mock,
         translation_requests_topic='requests_topic',
-        translation_updates_topic='updates_topic'
     )
-    event = TranslationRequestEvent(
-        article_id=1, title='title', content_path='path', language_id=1, date=datetime.now()
-    )
-    adapter.publish_translation_request(event)
 
-    kafka_manager_mock.produce_message.assert_called_once_with(
-        'requests_topic', TranslationRequestDTO.from_domain(event))
+
+def test_publish_translation_request(
+        mock_kafka_manager: ArticleMessageBroker
+) -> None:
+    event = TranslationRequestEventFactory()
+
+    mock_kafka_manager.publish_event(event)
+
+    mock_kafka_manager.kafka_manager.produce_message.assert_called_once_with(
+        'requests_topic',
+        TranslationRequestDTO.from_domain(event)
+    )

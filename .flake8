@@ -1,0 +1,15 @@
+[flake8]
+ignore = E201
+
+count = True
+statistics = True
+
+exclude =
+    .git,
+    __pycache__,
+    .pytest_cache,
+    .mypy_cache,
+    migrations/*
+
+filename =
+    *.py

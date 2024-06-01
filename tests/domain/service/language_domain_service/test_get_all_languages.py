@@ -1,14 +1,20 @@
-from articles.infrastructure.adapters.adapters import LanguageDbAdapter
-from articles.infrastructure.db.entity import LanguageEntity
-from sqlalchemy.orm import Session
+from articles.domain.service import LanguageService
+from tests.factory import LanguageEntityFactory
 
 
-def test_get_all_categories(language_db_adapter: LanguageDbAdapter, db_session: Session) -> None:
-    languages_dto = [
-        LanguageEntity(name='name1', code='CODE1'), 
-        LanguageEntity(name='name2', code='CODE2')
-    ]
-    db_session.bulk_save_objects(languages_dto)
-    db_session.commit()
-    result = language_db_adapter.get_all_languages()
-    assert len(languages_dto) == len(result)
+class TestGetAllLanguages:
+
+    def test_when_no_languages(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        result = language_domain_service.get_all_languages()
+        assert not result
+
+    def test_when_languages(
+            self,
+            language_domain_service: LanguageService
+    ) -> None:
+        languages = LanguageEntityFactory.create_batch(5)
+        result = language_domain_service.get_all_languages()
+        assert len(result) == len(languages)

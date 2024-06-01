@@ -1,18 +1,24 @@
-from articles.domain.service import CategoryDomainService
-from articles.infrastructure.db.entity import CategoryEntity
-from sqlalchemy.orm import Session
+from articles.domain.service import CategoryService
+from articles.domain.errors import CategoryNotFoundError
+from articles.infrastructure.persistance.entity import CategoryEntity
+from tests.factory import CategoryEntityFactory
 import pytest
 
 
 class TestDeleteCategory:
 
-    def test_when_not_found(self, category_domain_service: CategoryDomainService) -> None:
-        with pytest.raises(ValueError) as err:
-            category_domain_service.delete_category(9999)
-        assert 'Category does not exist' == str(err.value)
+    def test_when_not_found(
+            self,
+            category_domain_service: CategoryService
+    ) -> None:
+        with pytest.raises(CategoryNotFoundError) as e:
+            category_domain_service.delete_category(999)
+        assert CategoryNotFoundError().message == str(e.value)
 
-    def test_when_deleted(self, category_domain_service: CategoryDomainService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name'))
-        db_session.commit()
-        result = category_domain_service.delete_category(1)
-        assert not db_session.query(CategoryEntity).filter_by(id=result).first()
+    def test_when_deleted(
+            self,
+            category_domain_service: CategoryService
+    ) -> None:
+        category = CategoryEntityFactory()
+        id_ = category_domain_service.delete_category(category.id)
+        assert not CategoryEntity.query.filter_by(id=id_).first()

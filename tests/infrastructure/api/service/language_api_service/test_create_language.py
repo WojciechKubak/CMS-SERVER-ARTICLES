@@ -1,29 +1,43 @@
 from articles.infrastructure.api.service import LanguageApiService
-from articles.infrastructure.db.entity import LanguageEntity
 from articles.infrastructure.api.dto import LanguageDTO
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestCreateLanguage:
 
-    def test_when_name_exists(self, language_api_service: LanguageApiService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(name='name', code='CODE'))
-        db_session.commit()
-        language_dto = LanguageDTO(
-            id_=None,
-            name='name',
-            code='CODE'
-        )
-        with pytest.raises(ValueError) as err:
-            language_api_service.create_language(language_dto)
-            assert 'Language name already exists' == str(err.value)
+    def test_when_domain_error(
+            self,
+            language_api_service: LanguageApiService
+    ) -> None:
+        mock_dto = MagicMock()
 
-    def test_when_created(self, language_api_service: LanguageApiService, db_session: Session) -> None:
-        language_dto = LanguageDTO(
-            id_=None,
-            name='name',
-            code='CODE'
+        with patch.object(
+            language_api_service.language_service,
+            'create_language',
+        ) as mock_create_language:
+            mock_create_language.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                language_api_service.create_language(mock_dto)
+
+        assert DomainError().message == str(e.value)
+
+    def test_when_created(
+            self,
+            language_api_service: LanguageApiService
+    ) -> None:
+        mock_dto = MagicMock()
+
+        with patch.object(
+            language_api_service.language_service,
+            'create_language',
+        ) as mock_create_language:
+            mock_create_language.return_value = MagicMock()
+            result = language_api_service.create_language(mock_dto)
+
+        mock_create_language.assert_called_once_with(
+            mock_dto.to_domain()
         )
-        result = language_api_service.create_language(language_dto)
-        assert db_session.query(LanguageEntity).filter_by(id=result.id_).first()
+        assert isinstance(result, LanguageDTO)

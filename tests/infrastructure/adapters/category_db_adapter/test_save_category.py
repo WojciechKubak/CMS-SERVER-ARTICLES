@@ -1,11 +1,9 @@
 from articles.infrastructure.adapters.adapters import CategoryDbAdapter
-from articles.infrastructure.db.entity import CategoryEntity
-from articles.domain.model import Category
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import CategoryEntity
+from tests.factory import CategoryFactory
 
 
-def test_save_category(category_db_adapter: CategoryDbAdapter, db_session: Session) -> None:
-    category = Category(id_=1, name='name', description='dummy')
+def test_save_category(category_db_adapter: CategoryDbAdapter) -> None:
+    category = CategoryFactory()
     result = category_db_adapter.save_category(category)
-    assert category == result
-    assert db_session.query(CategoryEntity).filter_by(id=1).first()
+    assert CategoryEntity.query.filter_by(id=result.id_).first()

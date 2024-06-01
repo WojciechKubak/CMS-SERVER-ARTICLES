@@ -1,17 +1,18 @@
 from articles.domain.configuration import (
-    domain_category_service, 
-    domain_article_service, 
+    domain_category_service,
+    domain_article_service,
     domain_tag_service,
     domain_language_service,
     domain_translation_service
 )
 from articles.infrastructure.api.service import (
-    CategoryApiService, 
-    ArticleApiService, 
+    CategoryApiService,
+    ArticleApiService,
     TagApiService,
     TranslationApiService,
     LanguageApiService
 )
+
 
 category_service = CategoryApiService(domain_category_service)
 article_service = ArticleApiService(domain_article_service)

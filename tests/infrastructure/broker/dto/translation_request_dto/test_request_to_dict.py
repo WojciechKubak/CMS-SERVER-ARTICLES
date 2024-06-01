@@ -13,8 +13,8 @@ def test_to_dict() -> None:
     dto = TranslationRequestDTO(**data)
 
     result = dto.to_dict()
-    
+
     assert dto.article_id == result['id']
     assert dto.title == result['title']
-    assert dto.language_id == result['language_id'] 
+    assert dto.language_id == result['language_id']
     assert dto.date.strftime('%Y-%m-%d %H:%M:%S') == result['date']

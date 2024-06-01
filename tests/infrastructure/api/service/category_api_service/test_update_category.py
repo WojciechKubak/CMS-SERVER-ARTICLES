@@ -1,41 +1,43 @@
 from articles.infrastructure.api.service import CategoryApiService
-from articles.infrastructure.db.entity import CategoryEntity
 from articles.infrastructure.api.dto import CategoryDTO
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestUpdateCategory:
 
-    def test_when_not_found(self, category_api_service: CategoryApiService) -> None:
-        category_dto = CategoryDTO(
-            id_=1,
-            name='name',
-            description='dummy'
-        )
-        with pytest.raises(ValueError) as err:
-            category_api_service.update_category(category_dto)
-            assert 'Category does not exist' == str(err.value)
+    def test_when_domain_error(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        mock_dto = MagicMock()
 
-    def test_when_name_exists(self, category_api_service: CategoryApiService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name', description='dummy'))
-        db_session.commit()
-        category_dto = CategoryDTO(
-            id_=2,
-            name='name',
-            description='dummy'
-        )
-        with pytest.raises(ValueError) as err:
-            category_api_service.update_category(category_dto)
-            assert 'Category name already exists' == str(err.value)
+        with patch.object(
+            category_api_service.category_service,
+            'update_category',
+        ) as mock_update_category:
+            mock_update_category.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                category_api_service.update_category(mock_dto)
 
-    def test_when_updated(self, category_api_service: CategoryApiService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name', description='dummy'))
-        db_session.commit()
-        category_dto = CategoryDTO(
-            id_=1,
-            name='updated_name',
-            description='dummy'
+        assert DomainError().message == str(e.value)
+
+    def test_when_updated(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        mock_dto = MagicMock()
+
+        with patch.object(
+            category_api_service.category_service,
+            'update_category',
+        ) as mock_update_category:
+            mock_update_category.return_value = MagicMock()
+            result = category_api_service.update_category(mock_dto)
+
+        mock_update_category.assert_called_once_with(
+            mock_dto.to_domain()
         )
-        result = category_api_service.update_category(category_dto)
-        assert 'updated_name' == db_session.query(CategoryEntity).filter_by(id=result.id_).first().name
+        assert isinstance(result, CategoryDTO)

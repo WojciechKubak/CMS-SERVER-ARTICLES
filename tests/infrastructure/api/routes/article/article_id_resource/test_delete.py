@@ -1,19 +1,34 @@
-from articles.infrastructure.db.entity import ArticleEntity
+from articles.infrastructure.api.errors import ApplicationError
 from flask.testing import Client
-from sqlalchemy.orm import Session
+from flask import url_for
+from unittest.mock import patch
 
 
 class TestIdResourceDelete:
-    resource_path = '/articles'
+    resource_path = 'article_service.delete_article'
 
-    def test_when_not_found(self, client: Client) -> None:
-        response = client.delete(f'{self.resource_path}/1111')
+    def test_when_application_error(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        with patch(f'{base_path}.{self.resource_path}') as mock_delete_article:
+            mock_delete_article.side_effect = ApplicationError()
+            response = client.delete(url_for('articleidresource', id_=1))
+
+        mock_delete_article.assert_called_once_with(1)
         assert 400 == response.status_code
-        assert b'Article does not exist' in response.data
 
-    def test_when_deleted(self, client: Client, db_session: Session) -> None:
-        db_session.add(ArticleEntity(id=1, title='title'))
-        db_session.commit()
-        response = client.delete(f"{self.resource_path}/1")
+    def test_when_deleted(self, client: Client, base_path: str) -> None:
+        article_id = 1
+
+        with patch(f'{base_path}.{self.resource_path}') as mock_delete_article:
+            mock_delete_article.return_value = article_id
+            response = client.delete(url_for(
+                'articleidresource',
+                id_=article_id)
+            )
+
+        mock_delete_article.assert_called_once_with(article_id)
         assert 200 == response.status_code
-        assert b'Deleted article with id' in response.data
+        assert {'id': article_id} == response.json

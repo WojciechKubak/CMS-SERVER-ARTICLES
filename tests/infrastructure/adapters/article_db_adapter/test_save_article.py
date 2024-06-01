@@ -1,17 +1,9 @@
 from articles.infrastructure.adapters.adapters import ArticleDbAdapter
-from articles.domain.model import Article, Category, Tag
-from articles.infrastructure.db.entity import ArticleEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import ArticleEntity
+from tests.factory import ArticleFactory
 
 
-def test_save_article(article_db_adapter: ArticleDbAdapter, db_session: Session) -> None:
-    article = Article(
-        id_=1,
-        title='title',
-        content='dummy',
-        category=Category(id_=1, name='name', description='dummy'),
-        tags=[Tag(id_=1, name='name')]
-    )
+def test_save_article(article_db_adapter: ArticleDbAdapter) -> None:
+    article = ArticleFactory()
     result = article_db_adapter.save_article(article)
-    assert article == result
-    assert db_session.query(ArticleEntity).filter_by(id=1).first()
+    assert ArticleEntity.query.filter_by(id=result.id_).first()

@@ -12,7 +12,7 @@ def test_to_dict() -> None:
     dto = LanguageChangeEvent(**data)
 
     result = dto.to_dict()
-    
+
     assert dto.id_ == result['id']
     assert dto.name == result['name']
     assert dto.code == result['code']

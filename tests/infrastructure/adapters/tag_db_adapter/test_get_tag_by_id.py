@@ -1,17 +1,14 @@
 from articles.infrastructure.adapters.adapters import TagDbAdapter
-from articles.infrastructure.db.entity import TagEntity
-from sqlalchemy.orm import Session
+from tests.factory import TagEntityFactory
 
 
 class TestGetTagById:
 
-    def test_when_not_found(self, tag_db_adapter: TagDbAdapter, db_session: Session) -> None:
-        result = tag_db_adapter.get_tag_by_id(1111)
+    def test_when_not_found(self, tag_db_adapter: TagDbAdapter) -> None:
+        result = tag_db_adapter.get_tag_by_id(999)
         assert not result
-        assert not db_session.query(TagEntity).filter_by(id=1111).first()
 
-    def test_when_found(self, tag_db_adapter: TagDbAdapter, db_session: Session) -> None:
-        db_session.add(TagEntity(id=1, name='name'))
-        db_session.commit()
-        result = tag_db_adapter.get_tag_by_id(1)
-        assert 1 == result.id_
+    def test_when_found(self, tag_db_adapter: TagDbAdapter) -> None:
+        tag = TagEntityFactory()
+        result = tag_db_adapter.get_tag_by_id(tag.id)
+        assert tag.id == result.id_

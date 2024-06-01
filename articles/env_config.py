@@ -1,7 +1,10 @@
 from dotenv import load_dotenv
+import logging
 import os
 
+
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 
 DEBUG_MODE = int(os.environ.get('DEBUG', 1))
 
@@ -11,11 +14,7 @@ TRANSLATED_ARTICLES_TOPIC = os.getenv('TRANSLATED_ARTICLES_TOPIC')
 TRANSLATION_REQUESTS_TOPIC = os.getenv('TRANSLATION_REQUESTS_TOPIC')
 LANGUAGE_CHANGES_TOPIC = os.getenv('LANGUAGE_CHANGES_TOPIC')
 
-S3_BUCKET_CONFIG = {
-    'access_key_id': os.getenv("S3_ACCESS_KEY_ID"),
-    'secret_access_key': os.getenv("S3_SECRET_ACCESS_KEY"),
-    'bucket_name': os.getenv("S3_BUCKET_NAME"),
-    'bucket_subfolder_name': os.getenv("BUCKET_SUBFOLDER_NAME")
-} 
-DATABASE_URI = 'mysql://user:user1234@mysql-articles:3310/db_1' \
-    if DEBUG_MODE else os.getenv("PRODUCTION_DB_URI")
+S3_ACCESS_KEY_ID = os.getenv("S3_ACCESS_KEY_ID")
+S3_SECRET_ACCESS_KEY = os.getenv("S3_SECRET_ACCESS_KEY")
+S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
+BUCKET_SUBFOLDER_NAME = os.getenv("BUCKET_SUBFOLDER_NAME")

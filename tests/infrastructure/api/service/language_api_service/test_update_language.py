@@ -1,41 +1,43 @@
 from articles.infrastructure.api.service import LanguageApiService
-from articles.infrastructure.db.entity import LanguageEntity
 from articles.infrastructure.api.dto import LanguageDTO
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestUpdateLanguage:
 
-    def test_when_not_found(self, language_api_service: LanguageApiService) -> None:
-        language_dto = LanguageDTO(
-            id_=1,
-            name='name',
-            code='CODE'
-        )
-        with pytest.raises(ValueError) as err:
-            language_api_service.update_language(language_dto)
-            assert 'Language does not exist' == str(err.value)
+    def test_when_domain_error(
+            self,
+            language_api_service: LanguageApiService
+    ) -> None:
+        mock_dto = MagicMock()
 
-    def test_when_name_exists(self, language_api_service: LanguageApiService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-        db_session.commit()
-        language_dto = LanguageDTO(
-            id_=2,
-            name='name',
-            code='CODE'
-        )
-        with pytest.raises(ValueError) as err:
-            language_api_service.update_language(language_dto)
-            assert 'Language name already exists' == str(err.value)
+        with patch.object(
+            language_api_service.language_service,
+            'update_language',
+        ) as mock_update_language:
+            mock_update_language.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                language_api_service.update_language(mock_dto)
 
-    def test_when_updated(self, language_api_service: LanguageApiService, db_session: Session) -> None:
-        db_session.add(LanguageEntity(id=1, name='name', code=''))
-        db_session.commit()
-        language_dto = LanguageDTO(
-            id_=1,
-            name='name',
-            code='CODE'
+        assert DomainError().message == str(e.value)
+
+    def test_when_updated(
+            self,
+            language_api_service: LanguageApiService
+    ) -> None:
+        mock_dto = MagicMock()
+
+        with patch.object(
+            language_api_service.language_service,
+            'update_language',
+        ) as mock_update_language:
+            mock_update_language.return_value = MagicMock()
+            result = language_api_service.update_language(mock_dto)
+
+        mock_update_language.assert_called_once_with(
+            mock_dto.to_domain()
         )
-        result = language_api_service.update_language(language_dto)
-        assert language_dto.code == db_session.query(LanguageEntity).filter_by(id=result.id_).first().code
+        assert isinstance(result, LanguageDTO)

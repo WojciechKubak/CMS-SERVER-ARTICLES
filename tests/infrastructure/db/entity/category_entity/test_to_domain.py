@@ -1,8 +1,9 @@
-from articles.infrastructure.db.entity import CategoryEntity
+from tests.factory import CategoryEntityFactory
 
 
 def test_to_domain() -> None:
-    category_dao = CategoryEntity(id=1, name='name', description='dummy')
-    result = category_dao.to_domain()
-    assert category_dao.id == result.id_
-    assert category_dao.name == result.name
+    category = CategoryEntityFactory()
+    result = category.to_domain()
+    assert category.id == result.id_
+    assert category.name == result.name
+    assert category.description == result.description

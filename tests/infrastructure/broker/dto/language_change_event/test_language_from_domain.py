@@ -10,7 +10,7 @@ def test_from_domain() -> None:
         'event_type': LanguageEventType.CREATE,
     }
     event = LanguageEvent(**data)
-    
+
     result = LanguageChangeEvent.from_domain(event)
 
     assert event.id_ == result.id_

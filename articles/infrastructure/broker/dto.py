@@ -78,7 +78,7 @@ class TranslatedArticleDTO:
             language_id=self.language_id,
             author_id=self.author_id
         )
-    
+
     @classmethod
     def from_json(cls, data: dict[str, Any]) -> Self:
         return cls(

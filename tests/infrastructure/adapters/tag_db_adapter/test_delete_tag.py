@@ -1,10 +1,9 @@
 from articles.infrastructure.adapters.adapters import TagDbAdapter
-from articles.infrastructure.db.entity import TagEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import TagEntity
+from tests.factory import TagEntityFactory
 
 
-def test_delete_tag(db_session: Session, tag_db_adapter: TagDbAdapter) -> None:
-    db_session.add(TagEntity(id=1, name='name'))
-    db_session.commit()
-    tag_db_adapter.delete_tag(1)
-    assert not db_session.query(TagEntity).filter_by(id=1).first()
+def test_delete_tag(tag_db_adapter: TagDbAdapter) -> None:
+    tag = TagEntityFactory()
+    tag_db_adapter.delete_tag(tag.id)
+    assert not TagEntity.query.filter_by(id=tag.id).first()

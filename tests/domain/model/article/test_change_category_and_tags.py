@@ -1,10 +1,12 @@
-from articles.domain.model import Article, Tag, Category
+from tests.factory import ArticleFactory, CategoryFactory, TagFactory
 
 
-def test_with_category_and_tags() -> None:
-    article = Article(id_=1, title='title', content='dummy', category=None, tags=[])
-    tags = [Tag(id_=1, name='name'), Tag(id_=1, name='name')]
-    category = Category(id_=1, name='name', description='dummy')
+def test_change_category_and_tags() -> None:
+    article = ArticleFactory()
+    category = CategoryFactory()
+    tags = TagFactory.create_batch(5)
+
     result = article.change_category_and_tags(category, tags)
+
     assert tags == result.tags
     assert category == result.category

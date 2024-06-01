@@ -1,18 +1,39 @@
 from articles.infrastructure.api.service import CategoryApiService
-from articles.infrastructure.db.entity import CategoryEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.dto import CategoryDTO
+from articles.infrastructure.api.errors import ApplicationError
+from articles.domain.errors import DomainError
+from unittest.mock import MagicMock, patch
 import pytest
 
 
 class TestGetCategoryById:
 
-    def test_when_not_found(self, category_api_service: CategoryApiService) -> None:
-        with pytest.raises(ValueError) as err:
-            category_api_service.get_category_by_id(9999)
-        assert 'Category does not exist' == str(err.value)
+    def test_when_domain_error(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        with patch.object(
+            category_api_service.category_service,
+            'get_category_by_id',
+        ) as mock_get_category_by_id:
+            mock_get_category_by_id.side_effect = DomainError()
+            with pytest.raises(ApplicationError) as e:
+                category_api_service.get_category_by_id(999)
 
-    def test_when_found(self, category_api_service: CategoryApiService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name'))
-        db_session.commit()
-        result = category_api_service.get_category_by_id(1)
-        assert db_session.query(CategoryEntity).filter_by(id=result.id_).first()
+        assert DomainError().message == str(e.value)
+
+    def test_when_found(
+            self,
+            category_api_service: CategoryApiService
+    ) -> None:
+        category_id = 1
+
+        with patch.object(
+            category_api_service.category_service,
+            'get_category_by_id',
+        ) as mock_get_category_by_id:
+            mock_get_category_by_id.return_value = MagicMock()
+            result = category_api_service.get_category_by_id(category_id)
+
+        mock_get_category_by_id.assert_called_once_with(category_id)
+        assert isinstance(result, CategoryDTO)

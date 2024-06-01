@@ -1,8 +1,8 @@
-from articles.infrastructure.db.entity import TagEntity
+from tests.factory import TagEntityFactory
 
 
 def test_to_domain() -> None:
-    tag_dao = TagEntity(id=1, name='name')
-    result = tag_dao.to_domain()
-    assert tag_dao.id == result.id_
-    assert tag_dao.name == result.name
+    tag = TagEntityFactory()
+    result = tag.to_domain()
+    assert tag.id == result.id_
+    assert tag.name == result.name

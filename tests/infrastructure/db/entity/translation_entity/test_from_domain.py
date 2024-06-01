@@ -1,18 +1,16 @@
-from articles.infrastructure.db.entity import TranslationEntity, ArticleEntity, LanguageEntity
-from articles.domain.model import Translation, Language, Article, Category
+from articles.infrastructure.persistance.entity import (
+    TranslationEntity,
+    LanguageEntity,
+    ArticleEntity
+)
+from tests.factory import TranslationFactory
 
 
 def test_from_domain() -> None:
-    langauge = Language(id_=1, name='Language', code='LANG')
-    article = Article(id_=1, title='title', content='dummy', category=Category(id_=1, name='', description=''), tags=[])
-    translation_domain = Translation(
-        id_=1, 
-        language=langauge,
-        content='content',
-        is_ready=True,
-        article=article,
-    )
-    result = TranslationEntity.from_domain(translation_domain)
-    assert translation_domain.id_ == result.id
-    assert isinstance(result.article, ArticleEntity)
+    translation = TranslationFactory()
+    result = TranslationEntity.from_domain(translation)
+    assert translation.id_ == result.id
+    assert translation.content == result.content_path
+    assert translation.is_ready == result.is_ready
     assert isinstance(result.language, LanguageEntity)
+    assert isinstance(result.article, ArticleEntity)

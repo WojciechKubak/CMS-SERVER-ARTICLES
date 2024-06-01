@@ -1,13 +1,11 @@
-from articles.infrastructure.db.repository import TagRepository
-from articles.infrastructure.db.entity import TagEntity
-from sqlalchemy.orm import Session
-from typing import Any
+from articles.infrastructure.persistance.repository import TagRepository
+from tests.factory import TagEntityFactory
 
 
-def test_find_many_by_id(tag_repository: TagRepository, db_session: Session) -> None:
-    tags = [TagEntity(name=''), TagEntity(name='')]
-    db_session.bulk_save_objects(tags)
-    db_session.commit()
+def test_find_many_by_id(tag_repository: TagRepository) -> None:
+    tags = TagEntityFactory.create_batch(5)
+    tags_id = [tag.id for tag in tags]
 
-    result = tag_repository.find_many_by_id([1, 2])
-    assert len(tags) == len(result)
+    result = tag_repository.find_many_by_id(tags_id)
+
+    assert tags == result

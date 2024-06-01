@@ -1,17 +1,13 @@
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity, TagEntity
 from articles.domain.model import Category, Tag
+from tests.factory import ArticleEntityFactory
 
 
 def test_to_domain() -> None:
-    article_dao = ArticleEntity(
-        id=1,
-        title='title',
-        content_path='dummy',
-        category=CategoryEntity(id=1, name='name', description='dummy'),
-        tags=[TagEntity(id=1, name='name'), TagEntity(id=2, name='name')]
-    )
-    result = article_dao.to_domain()
-
-    assert article_dao.id == result.id_
+    article = ArticleEntityFactory()
+    result = article.to_domain()
+    assert article.id == result.id_
+    assert article.title == result.title
+    assert article.content_path == result.content
     assert isinstance(result.category, Category)
+    assert len(result.tags) == len(article.tags)
     assert all(isinstance(tag, Tag) for tag in result.tags)

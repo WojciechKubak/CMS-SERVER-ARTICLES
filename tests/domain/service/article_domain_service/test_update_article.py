@@ -1,81 +1,84 @@
-from articles.domain.service import ArticleDomainService
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity, TagEntity
-from articles.domain.model import Article
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import ArticleEntity
+from articles.domain.service import ArticleService
+from articles.domain.errors import (
+    ArticleNotFoundError,
+    ArticleTitleExistsError,
+    CategoryNotFoundError,
+    TagNotFoundError
+)
+from tests.factory import ArticleFactory, ArticleEntityFactory
+from unittest.mock import patch
 import pytest
 
 
-class TestCreateArticle:
+class TestUpdateArticle:
 
-    def test_when_not_found(self, article_domain_service: ArticleDomainService,) -> None:
-        article = Article(
-            id_=None,
-            title='title',
-            content='dummy',
-            category=1,
-            tags=[1, 2]
-        )
-        with pytest.raises(ValueError) as err:
+    def test_when_not_found(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        article = ArticleFactory()
+        with pytest.raises(ArticleNotFoundError) as e:
             article_domain_service.update_article(article)
-            assert 'Article does not exist' == str(err.value)
+        assert ArticleNotFoundError().message == str(e.value)
 
-    def test_when_title_exists(self, article_domain_service: ArticleDomainService, db_session: Session) -> None:
-        db_session.add(ArticleEntity(id=1, title='name'))
-        db_session.commit()
-        article = Article(
-            id_=None,
-            title='title',
-            content='dummy',
-            category=1,
-            tags=[1, 2]
-        )
-        with pytest.raises(ValueError) as err:
+    def test_when_title_exists(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        dao_first, dao_second = ArticleEntityFactory(), ArticleEntityFactory()
+        article = ArticleFactory(id_=dao_first.id, title=dao_second.title)
+
+        with pytest.raises(ArticleTitleExistsError) as e:
             article_domain_service.update_article(article)
-            assert 'Article name already exists' == str(err.value)
 
-    def test_when_no_category(self, article_domain_service: ArticleDomainService, db_session: Session) -> None:
-        db_session.add(ArticleEntity(id=1, title='name'))
-        db_session.commit()
-        article = Article(
-            id_=None,
-            title='title',
-            content='dummy',
-            category=1,
-            tags=[1, 2]
-        )
-        with pytest.raises(ValueError) as err:
+        assert ArticleTitleExistsError().message == str(e.value)
+
+    def test_when_no_category(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        article_dao = ArticleEntityFactory()
+        article = ArticleFactory(
+            id_=article_dao.id,
+            category=article_dao.category_id + 1)
+
+        with pytest.raises(CategoryNotFoundError) as e:
             article_domain_service.update_article(article)
-            assert 'Category does not exist' == str(err.value)
 
-    def test_when_no_tag(self, article_domain_service: ArticleDomainService, db_session: Session) -> None:
-        db_session.add(ArticleEntity(id=1, title='name'))
-        db_session.commit()
-        article = Article(
-            id_=None,
-            title='title',
-            content='dummy',
-            category=1,
-            tags=[1, 2]
+        assert CategoryNotFoundError().message == str(e.value)
+
+    def test_when_no_tag(self, article_domain_service: ArticleService) -> None:
+        article_dao = ArticleEntityFactory()
+        article = ArticleFactory(
+            id_=article_dao.id,
+            category=article_dao.category_id
         )
-        with pytest.raises(ValueError) as err:
+
+        with pytest.raises(TagNotFoundError) as e:
             article_domain_service.update_article(article)
-            assert 'Tag does not exist' == str(err.value)
 
-    def test_when_updated(self, article_domain_service: ArticleDomainService, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            CategoryEntity(id=1, name='name'),
-            ArticleEntity(id=1, title='title'),
-            TagEntity(id=1, name='t1'),
-            TagEntity(id=2, name='t2'),
-            TagEntity(id=3, name='t2'),
-        ])
-        db_session.commit()
-        article = Article(
-            id_=1,
-            title='updated_title',
-            content='dummy',
-            category=1,
-            tags=[1, 2, 3]
+        assert TagNotFoundError().message == str(e.value)
+
+    def test_when_updated(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        article_dao = ArticleEntityFactory()
+        new_title = f'new_{article_dao.title}'
+        article = ArticleFactory(
+            id_=article_dao.id,
+            title=new_title,
+            category=article_dao.category_id,
+            tags=[tag.id for tag in article_dao.tags]
         )
-        article_domain_service.update_article(article)
-        assert 'updated_title' == db_session.query(ArticleEntity).filter_by(id=1).first().title
+
+        with patch.object(
+            article_domain_service.file_storage,
+            'update_content'
+        ) as mock_delete_content:
+            result = article_domain_service.update_article(article)
+
+        mock_delete_content.assert_called_once()
+        assert ArticleEntity.query.filter_by(id=result.id_).first().title \
+            == new_title

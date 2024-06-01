@@ -1,81 +1,42 @@
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity, TagEntity
+from articles.infrastructure.api.errors import ApplicationError
 from flask.testing import Client
-from sqlalchemy.orm import Session
+from flask import url_for
+from unittest.mock import MagicMock, patch
 
 
 class TestIdResourcePut:
-    resource_path = '/articles'
+    resource_path = 'article_service.update_article'
 
-    def test_when_not_found(self, client: Client) -> None:
-        article_dto = {
-            'title': 'updated_title',
-            'content': 'dummy',
-            'category_id': 1,
-            'tags_id': [1, 2]
-        }
-        response = client.put(f"{self.resource_path}/1", json=article_dto)
+    def test_when_application_error(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        with patch(f'{base_path}.{self.resource_path}') as mock_update_article:
+            mock_update_article.side_effect = ApplicationError()
+            response = client.put(url_for('articleidresource', id_=1), json={})
+
+        mock_update_article.assert_called_once()
         assert 400 == response.status_code
-        assert b'Article does not exist' in response.data
+        assert {'message': ApplicationError().message} == response.get_json()
 
-    def test_when_title_exists(self, client: Client, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            ArticleEntity(id=1, title='title'),
-            ArticleEntity(id=2, title='updated_title'),
-        ])
-        db_session.commit()
-        article_dto = {
-            'title': 'updated_title',
-            'content': 'dummy',
-            'category_id': 1,
-            'tags_id': [1, 2]
+    def test_when_updated(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        article_id = 1
+        mock_article = MagicMock()
+        mock_article.to_dict.return_value = {
+            'id': article_id,
+            'title': 'test_title'
         }
-        response = client.put(f"{self.resource_path}/1", json=article_dto)
-        assert 400 == response.status_code
-        assert b'Article title already exists' in response.data
 
-    def test_when_no_category(self, client: Client, db_session: Session) -> None:
-        db_session.add(ArticleEntity(id=1, title='title'))
-        db_session.commit()
-        article_dto = {
-            'title': 'updated_title',
-            'content': 'dummy',
-            'category_id': 1,
-            'tags_id': [1, 2]
-        }
-        response = client.put(f"{self.resource_path}/1", json=article_dto)
-        assert 400 == response.status_code
-        assert b'Category does not exist' in response.data
+        with patch(f'{base_path}.{self.resource_path}') as mock_update_article:
+            mock_update_article.return_value = mock_article
+            response = client.put(
+                url_for('articleidresource', id_=article_id), json={})
 
-    def test_when_no_tag(self, client: Client, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            ArticleEntity(id=1, title='title'),
-            CategoryEntity(id=1, name='name'),
-        ])
-        db_session.commit()
-        article_dto = {
-            'title': 'updated_title',
-            'content': 'dummy',
-            'category_id': 1,
-            'tags_id': [1, 2]
-        }
-        response = client.put(f"{self.resource_path}/1", json=article_dto)
-        assert 400 == response.status_code
-        assert b'Tag does not exist' in response.data
-
-    def test_when_updated(self, client: Client, db_session: Session) -> None:
-        db_session.bulk_save_objects([
-            ArticleEntity(id=1, title='title'),
-            CategoryEntity(id=1, name=''),
-            TagEntity(id=1, name=''),
-            TagEntity(id=2, name='')
-        ])
-        db_session.commit()
-        article_dto = {
-            'title': 'updated_title',
-            'content': 'dummy',
-            'category_id': 1,
-            'tags_id': [1, 2]
-        }
-        response = client.put(f"{self.resource_path}/1", json=article_dto)
+        mock_update_article.assert_called_once()
         assert 200 == response.status_code
-        assert db_session.query(ArticleEntity).filter_by(id=1).first().title == 'updated_title'
+        assert {'id': article_id, 'title': 'test_title'} == response.get_json()

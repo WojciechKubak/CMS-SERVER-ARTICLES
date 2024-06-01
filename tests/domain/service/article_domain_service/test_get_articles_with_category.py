@@ -1,19 +1,34 @@
-from articles.infrastructure.adapters.adapters import ArticleDbAdapter
-from articles.infrastructure.db.entity import ArticleEntity, CategoryEntity
-from sqlalchemy.orm import Session
+from articles.domain.service import ArticleService
+from articles.domain.errors import CategoryNotFoundError
+from tests.factory import ArticleEntityFactory, CategoryEntityFactory
+import pytest
 
 
-def test_get_articles_with_category(article_db_adapter: ArticleDbAdapter, db_session: Session) -> None:
-    categories_dto = [
-        CategoryEntity(id=1, name='name'),
-        CategoryEntity(id=2, name='name')
-    ]
-    articles_dto = [
-        ArticleEntity(title='tilte', category_id=1),
-        ArticleEntity(title='tilte', category_id=1),
-        ArticleEntity(title='tilte', category_id=2)
-    ]
-    db_session.bulk_save_objects([*categories_dto, *articles_dto])
-    db_session.commit()
-    result = article_db_adapter.get_articles_with_category(1)
-    assert len([article for article in articles_dto if article.category_id == 1]) == len(result)
+class TestGetArticlesWithCategory:
+
+    def test_when_no_articles(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        category = CategoryEntityFactory()
+        result = article_domain_service.get_articles_with_category(category.id)
+        assert not result
+
+    def test_when_no_category(
+            self,
+            article_domain_service: ArticleService
+    ) -> None:
+        with pytest.raises(CategoryNotFoundError) as e:
+            article_domain_service.get_articles_with_category(999)
+        assert CategoryNotFoundError().message == str(e.value)
+
+    def test_when_articles(
+            self,
+            article_domain_service: ArticleService,
+    ) -> None:
+        category = CategoryEntityFactory()
+        ArticleEntityFactory.create_batch(5, category=category)
+
+        result = article_domain_service.get_articles_with_category(category.id)
+
+        assert all(['path_content' == r.content for r in result])

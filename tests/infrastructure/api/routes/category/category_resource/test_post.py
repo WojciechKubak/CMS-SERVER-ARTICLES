@@ -1,19 +1,43 @@
-from articles.infrastructure.db.entity import CategoryEntity
+from articles.infrastructure.api.errors import ApplicationError
 from flask.testing import Client
-from sqlalchemy.orm import Session
+from flask import url_for
+from unittest.mock import MagicMock, patch
 
 
-class TestCreateCategory:
-    resource_path = '/articles/categories'
+class TestIdResourcePost:
+    resource_path = 'category_service.create_category'
 
-    def test_when_name_exists(self, client: Client, db_session: Session) -> None:
-        db_session.add(CategoryEntity(name='name'))
-        db_session.commit()
-        response = client.post(self.resource_path, json={'name': 'name'})
+    def test_when_application_error(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        with patch(
+            f'{base_path}.{self.resource_path}'
+        ) as mock_create_category:
+            mock_create_category.side_effect = ApplicationError()
+            response = client.post(url_for('categoryresource'), json={})
+
+        mock_create_category.assert_called_once()
         assert 400 == response.status_code
-        assert b'Category name already exists' in response.data
 
-    def test_when_created(self, client: Client, db_session: Session) -> None:
-        response = client.post(self.resource_path, json={'name': 'name'})
+    def test_when_updated(
+            self,
+            client: Client,
+            base_path: str
+    ) -> None:
+        mock_category = MagicMock()
+        mock_category.to_dict.return_value = {
+            'id': 1,
+            'name': 'test_name'
+        }
+
+        with patch(
+            f'{base_path}.{self.resource_path}'
+        ) as mock_create_category:
+            mock_create_category.return_value = mock_category
+            response = client.post(url_for('categoryresource'), json={})
+
+        mock_create_category.assert_called_once()
         assert 201 == response.status_code
-        assert db_session.query(CategoryEntity).filter_by(id=response.json['id']).first()
+        assert {'id': 1, 'name': 'test_name'} == response.get_json()

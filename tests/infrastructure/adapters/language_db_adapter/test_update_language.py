@@ -1,12 +1,14 @@
 from articles.infrastructure.adapters.adapters import LanguageDbAdapter
-from articles.infrastructure.db.entity import LanguageEntity
-from articles.domain.model import Language
-from sqlalchemy.orm import Session
+from articles.infrastructure.persistance.entity import LanguageEntity
+from tests.factory import LanguageEntityFactory, LanguageFactory
 
 
-def test_update_language(language_db_adapter: LanguageDbAdapter, db_session: Session) -> None:
-    db_session.add(LanguageEntity(id=1, name='name', code='CODE'))
-    db_session.commit()
-    language = Language(id_=1, name='new_name', code='CODE')
+def test_update_language(language_db_adapter: LanguageDbAdapter) -> None:
+    language_dao = LanguageEntityFactory()
+    new_name = f'new_{language_dao.name}'
+    language = LanguageFactory(name=new_name)
+
     result = language_db_adapter.update_language(language)
-    assert language == result
+
+    assert LanguageEntity.query.filter_by(id=result.id_).first().name \
+        == new_name

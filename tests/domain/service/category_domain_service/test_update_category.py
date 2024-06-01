@@ -1,29 +1,52 @@
-from articles.domain.service import CategoryDomainService
-from articles.infrastructure.db.entity import CategoryEntity
-from articles.domain.model import Category
-from sqlalchemy.orm import Session
+from articles.domain.service import CategoryService
+from articles.domain.errors import (
+    CategoryNotFoundError,
+    CategoryNameExistsError
+)
+from articles.infrastructure.persistance.entity import CategoryEntity
+from tests.factory import CategoryEntityFactory, CategoryFactory
 import pytest
 
 
 class TestUpdateCategory:
 
-    def test_when_not_found(self, category_domain_service: CategoryDomainService, db_session: Session) -> None:
-        category = Category(id_=1, name='name', description='dummy')
-        with pytest.raises(ValueError) as err:
+    def test_when_not_found(
+            self,
+            category_domain_service: CategoryService
+    ) -> None:
+        category = CategoryFactory()
+        with pytest.raises(CategoryNotFoundError) as e:
             category_domain_service.update_category(category)
-            assert 'Category does not exist' == str(err.value)
+        assert CategoryNotFoundError().message == str(e.value)
 
-    def test_when_name_exists(self, category_domain_service: CategoryDomainService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name', description='dummy'))
-        db_session.commit()
-        category = Category(id_=2, name='name', description='dummy')
-        with pytest.raises(ValueError) as err:
+    def test_when_name_exists(
+            self,
+            category_domain_service: CategoryService
+    ) -> None:
+        category_dao_first, category_dao_second = \
+            CategoryEntityFactory.create_batch(2)
+        category = CategoryFactory(
+            id_=category_dao_first.id,
+            name=category_dao_second.name
+        )
+
+        with pytest.raises(CategoryNameExistsError) as e:
             category_domain_service.update_category(category)
-            assert 'Category name already exists' == str(err.value)
 
-    def test_when_updated(self, category_domain_service: CategoryDomainService, db_session: Session) -> None:
-        db_session.add(CategoryEntity(id=1, name='name', description='dummy'))
-        db_session.commit()
-        category = Category(id_=1, name='updated_name', description='dummy')
+        assert CategoryNameExistsError().message == str(e.value)
+
+    def test_when_updated(
+            self,
+            category_domain_service: CategoryService
+    ) -> None:
+        category_dao = CategoryEntityFactory()
+        new_name = f'new_{category_dao.name}'
+        category = CategoryFactory(
+            id_=category_dao.id,
+            name=new_name
+        )
+
         result = category_domain_service.update_category(category)
-        assert 'updated_name' == db_session.query(CategoryEntity).filter_by(id=result.id_).first().name
+
+        assert CategoryEntity.query.filter_by(id=result.id_).first().name \
+            == new_name

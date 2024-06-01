@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Self
+from typing import Self
 
 
 @dataclass
@@ -8,24 +8,11 @@ class Category:
     name: str
     description: str | None
 
-    def to_json(self) -> dict[str, Any]:
-        return {
-            'id': self.id_,
-            'name': self.name,
-            'description': self.description
-        }
-
 
 @dataclass
 class Tag:
     id_: int | None
     name: str
-
-    def to_json(self) -> dict[str, Any]:
-        return {
-            'id': self.id_,
-            'name': self.name,
-        }
 
 
 @dataclass
@@ -34,13 +21,6 @@ class Language:
     name: str
     code: str
 
-    def to_json(self) -> dict[str, Any]:
-        return {
-            'id': self.id_,
-            'name': self.name,
-            'code': self.code
-        }
-
 
 @dataclass
 class Article:
@@ -48,28 +28,23 @@ class Article:
     title: str
     content: str
     category: Category | int
-    tags: list[Tag | int]
+    tags: list[Tag] | list[int]
 
-    def to_json(self) -> dict[str, Any]:
-        return {
-            'id': self.id_,
-            'title': self.title,
-            'content': self.content,
-            'category': self.category.to_json(),
-            'tags': [tag.to_json() for tag in self.tags],
-        }
-
-    def change_category_and_tags(self, category: Category, tags: list[Tag]) -> Self:
-        return Article(
+    def change_category_and_tags(
+            self,
+            category: Category,
+            tags: list[Tag]
+    ) -> Self:
+        return self.__class__(
             id_=self.id_,
             title=self.title,
             content=self.content,
             category=category,
             tags=tags,
         )
-    
+
     def change_content(self, content: str) -> Self:
-        return Article(
+        return self.__class__(
             id_=self.id_,
             title=self.title,
             content=content,
@@ -82,20 +57,12 @@ class Article:
 class Translation:
     id_: int | None
     language: Language
-    content: str | None
+    content: str
     is_ready: bool
     article: Article
 
-    def to_json(self) -> dict[str, Any]:
-        return {
-            'id': self.id_,
-            'content': self.content,
-            'language': self.language.to_json(),
-            'is_ready': self.is_ready,
-        }
-    
     def publish(self, content_path: str) -> Self:
-        return Translation(
+        return self.__class__(
             id_=self.id_,
             content=content_path,
             language=self.language,

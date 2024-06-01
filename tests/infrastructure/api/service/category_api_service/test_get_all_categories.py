@@ -1,11 +1,16 @@
 from articles.infrastructure.api.service import CategoryApiService
-from articles.infrastructure.db.entity import CategoryEntity
-from sqlalchemy.orm import Session
+from articles.infrastructure.api.dto import CategoryDTO
+from unittest.mock import MagicMock, patch
 
 
-def test_get_all_categories(category_api_service: CategoryApiService, db_session: Session) -> None:
-    categorys_dto = [CategoryEntity(name=''), CategoryEntity(name='')]
-    db_session.bulk_save_objects(categorys_dto)
-    db_session.commit()
-    result = category_api_service.get_all_categories()
-    assert len(categorys_dto) == len(result)
+def test_get_all_categories(category_api_service: CategoryApiService) -> None:
+    with patch.object(
+        category_api_service.category_service,
+        'get_all_categories',
+    ) as mock_get_all_categories:
+        mock_get_all_categories.return_value = [MagicMock(), MagicMock()]
+        result = category_api_service.get_all_categories()
+
+    mock_get_all_categories.assert_called_once()
+    assert isinstance(result, list)
+    assert isinstance(result[0], CategoryDTO)

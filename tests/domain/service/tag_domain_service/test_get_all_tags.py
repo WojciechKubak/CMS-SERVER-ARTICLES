@@ -1,11 +1,14 @@
-from articles.infrastructure.adapters.adapters import TagDbAdapter
-from articles.infrastructure.db.entity import TagEntity
-from sqlalchemy.orm import Session
+from articles.domain.service import TagService
+from tests.factory import TagEntityFactory
 
 
-def test_get_all_tags(tag_db_adapter: TagDbAdapter, db_session: Session) -> None:
-    tags_dto = [TagEntity(name=''), TagEntity(name='')]
-    db_session.bulk_save_objects(tags_dto)
-    db_session.commit()
-    result = tag_db_adapter.get_all_tags()
-    assert len(tags_dto) == len(result)
+class TestGetAllTags:
+
+    def test_when_no_tags(self, tag_domain_service: TagService) -> None:
+        result = tag_domain_service.get_all_tags()
+        assert not result
+
+    def test_when_tags(self, tag_domain_service: TagService) -> None:
+        tags = TagEntityFactory.create_batch(5)
+        result = tag_domain_service.get_all_tags()
+        assert len(tags) == len(result)

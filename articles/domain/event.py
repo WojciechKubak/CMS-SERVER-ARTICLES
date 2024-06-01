@@ -12,6 +12,27 @@ class LanguageEventType(Enum):
 
 
 @dataclass
+class LanguageEvent:
+    id_: int
+    name: str
+    code: str
+    event_type: LanguageEventType
+
+    @classmethod
+    def create(
+        cls,
+        language: Language,
+        event_type: LanguageEventType
+    ) -> Self:
+        return cls(
+            id_=language.id_,
+            name=language.name,
+            code=language.code,
+            event_type=event_type
+        )
+
+
+@dataclass
 class TranslationRequestEvent:
     article_id: int
     title: str
@@ -20,7 +41,7 @@ class TranslationRequestEvent:
     date: datetime
 
     @classmethod
-    def from_domain(cls, article: Article, language: Language) -> Self:
+    def create(cls, article: Article, language: Language) -> Self:
         return cls(
             article_id=article.id_,
             title=article.title,
@@ -37,20 +58,3 @@ class ArticleTranslatedEvent:
     content_path: str
     language_id: int
     author_id: int
-
-
-@dataclass
-class LanguageEvent:
-    id_: int
-    name: str
-    code: str
-    event_type: LanguageEventType
-
-    @classmethod
-    def from_domain(cls, language: Language, event_type: LanguageEventType) -> Self:
-        return cls(
-            id_=language.id_,
-            name=language.name,
-            code=language.code,
-            event_type=event_type
-        )
