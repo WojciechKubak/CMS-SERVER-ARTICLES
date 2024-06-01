@@ -22,6 +22,7 @@ flake8 = "*"
 factory-boy = "*"
 moto = "*"
 pytest = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.12"

@@ -8,10 +8,30 @@ import logging
 
 @dataclass
 class KafkaService:
+    """
+    Service for interacting with Kafka.
+
+    This class provides methods to produce and consume messages.
+
+    Attributes:
+        bootstrap_servers (str): The bootstrap servers for Kafka.
+        group_id (str): The group ID for Kafka.
+    """
+
     bootstrap_servers: str
     group_id: str
 
     def produce_message(self, topic_name: str, dto_class: Type) -> None:
+        """
+        Produce a message to a Kafka topic.
+
+        This method creates a producer, produces a message to the specified
+        topic, and flushes the producer.
+
+        Args:
+            topic_name (str): The name of the topic.
+            dto_class (Type): The class of the DTO to produce.
+        """
         producer = Producer({'bootstrap.servers': self.bootstrap_servers})
         producer.produce(
             topic_name,
@@ -25,6 +45,20 @@ class KafkaService:
             handler: Callable[[Type], None],
             dto_class: Type
     ) -> None:
+        """
+        Consume messages from a Kafka topic.
+
+        This method creates a consumer, subscribes to the specified topic
+        and consumes messages from it.
+        If a message is successfully consumed, it is passed to the handler.
+        If an error occurs while consuming a message, it is logged and the
+        consumer continues to the next message.
+
+        Args:
+            topic_name (str): The name of the topic.
+            handler (Callable[[Type], None]): The handler for the messages.
+            dto_class (Type): The class of the DTO to consume.
+        """
         consumer = Consumer({
             'bootstrap.servers': self.bootstrap_servers,
             'group.id': self.group_id,

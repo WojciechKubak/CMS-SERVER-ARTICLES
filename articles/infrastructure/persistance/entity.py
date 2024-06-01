@@ -3,6 +3,7 @@ from articles.infrastructure.persistance.configuration import sa
 from sqlalchemy import Integer, String, Boolean, ForeignKey, Column, func
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from datetime import datetime
+from typing import Self
 
 
 articles_tags = sa.Table(
@@ -13,6 +14,9 @@ articles_tags = sa.Table(
 
 
 class CategoryEntity(sa.Model):
+    """
+    SQLAlchemy model for the 'categories' table.
+    """
 
     __tablename__ = 'categories'
 
@@ -29,7 +33,17 @@ class CategoryEntity(sa.Model):
     )
 
     @classmethod
-    def from_domain(cls, model: Category) -> 'CategoryEntity':
+    def from_domain(cls, model: Category) -> Self:
+        """
+        Class method to create a CategoryEntity instance from a Category
+        domain model.
+
+        Args:
+            model (Category): The Category domain model instance.
+
+        Returns:
+            CategoryEntity: The created CategoryEntity instance.
+        """
         return cls(
             id=model.id_,
             name=model.name,
@@ -45,6 +59,9 @@ class CategoryEntity(sa.Model):
 
 
 class TagEntity(sa.Model):
+    """
+    SQLAlchemy model for the 'tags' table.
+    """
 
     __tablename__ = 'tags'
 
@@ -53,14 +70,33 @@ class TagEntity(sa.Model):
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
 
     @classmethod
-    def from_domain(cls, model: Tag) -> 'TagEntity':
+    def from_domain(cls, model: Tag) -> Self:
+        """
+        Class method to create a TagEntity instance from a Tag domain model.
+
+        Args:
+            model (Tag): The Tag domain model instance.
+
+        Returns:
+            TagEntity: The created TagEntity instance.
+        """
         return cls(id=model.id_, name=model.name)
 
     def to_domain(self) -> Tag:
+        """
+        Instance method to convert the TagEntity instance to a Tag domain
+        model.
+
+        Returns:
+            Tag: The created Tag domain model instance.
+        """
         return Tag(id_=self.id, name=self.name)
 
 
 class LanguageEntity(sa.Model):
+    """
+    SQLAlchemy model for the 'languages' table.
+    """
 
     __tablename__ = 'languages'
 
@@ -75,14 +111,34 @@ class LanguageEntity(sa.Model):
     )
 
     @classmethod
-    def from_domain(cls, model: Language) -> 'LanguageEntity':
+    def from_domain(cls, model: Language) -> Self:
+        """
+        Class method to create a LanguageEntity instance from a Language
+        domain model.
+
+        Args:
+            model (Language): The Language domain model instance.
+
+        Returns:
+            LanguageEntity: The created LanguageEntity instance.
+        """
         return cls(id=model.id_, name=model.name, code=model.code)
 
     def to_domain(self) -> Language:
+        """
+        Instance method to convert the LanguageEntity instance
+        to a Language domain model.
+
+        Returns:
+            Language: The created Language domain model instance.
+        """
         return Language(id_=self.id, name=self.name, code=self.code)
 
 
 class ArticleEntity(sa.Model):
+    """
+    SQLAlchemy model for the 'articles' table.
+    """
 
     __tablename__ = 'articles'
 
@@ -114,7 +170,17 @@ class ArticleEntity(sa.Model):
     )
 
     @classmethod
-    def from_domain(cls, model: Article) -> 'ArticleEntity':
+    def from_domain(cls, model: Article) -> Self:
+        """
+        Class method to create an ArticleEntity instance from an Article
+        domain model.
+
+        Args:
+            model (Article): The Article domain model instance.
+
+        Returns:
+            ArticleEntity: The created ArticleEntity instance.
+        """
         return cls(
             id=model.id_,
             title=model.title,
@@ -124,6 +190,13 @@ class ArticleEntity(sa.Model):
         )
 
     def to_domain(self) -> Article:
+        """
+        Instance method to convert the ArticleEntity instance to an Article
+        domain model.
+
+        Returns:
+            Article: The created Article domain model instance.
+        """
         return Article(
             id_=self.id,
             title=self.title,
@@ -134,6 +207,9 @@ class ArticleEntity(sa.Model):
 
 
 class TranslationEntity(sa.Model):
+    """
+    SQLAlchemy model for the 'translations' table.
+    """
 
     __tablename__ = 'translations'
 
@@ -160,7 +236,17 @@ class TranslationEntity(sa.Model):
     )
 
     @classmethod
-    def from_domain(cls, model: Translation) -> 'TranslationEntity':
+    def from_domain(cls, model: Translation) -> Self:
+        """
+        Class method to create a TranslationEntity instance from
+        a Translation domain model.
+
+        Args:
+            model (Translation): The Translation domain model instance.
+
+        Returns:
+            TranslationEntity: The created TranslationEntity instance.
+        """
         return cls(
             id=model.id_,
             content_path=model.content,
@@ -170,6 +256,13 @@ class TranslationEntity(sa.Model):
         )
 
     def to_domain(self) -> Translation:
+        """
+        Instance method to convert the TranslationEntity instance
+        to a Translation domain model.
+
+        Returns:
+            Translation: The created Translation domain model instance.
+        """
         return Translation(
             id_=self.id,
             content=self.content_path,

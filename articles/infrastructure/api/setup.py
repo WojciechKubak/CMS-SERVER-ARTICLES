@@ -19,6 +19,14 @@ from flask_restful import Api
 
 
 def setup_routing(api: Api) -> None:
+    """
+    Setup the routing for the API.
+
+    This function adds resources to the API with their corresponding routes.
+
+    Args:
+        api (Api): The Flask-RESTful API.
+    """
     api.add_resource(CategoryResource, '/categories')
     api.add_resource(CategoryListResource, '/categories')
     api.add_resource(CategoryIdResource, '/categories/<int:id_>')

@@ -9,6 +9,21 @@ from flask_migrate import Migrate
 
 
 def create_app(config: Config) -> Flask:
+    """
+    Create and configure a Flask application.
+
+    This function initializes a Flask application, configures it with the
+    provided configuration, sets up task pooling, initializes SQLAlchemy
+    and database migration, sets up API routing, and defines
+    a health check endpoint.
+
+    Args:
+        config (Config): The configuration object to use for the application.
+
+    Returns:
+        Flask: The configured Flask application.
+
+    """
     app = Flask(__name__)
     app.config.from_object(config)
 

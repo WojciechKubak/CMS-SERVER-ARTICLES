@@ -9,12 +9,41 @@ from dataclasses import dataclass
 
 @dataclass
 class ConsumerService:
+    """
+    Service for consuming translation events.
+
+    This class provides a method to handle translated articles.
+
+    Attributes:
+        translation_service (TranslationConsumer): The translation
+        consumer service.
+    """
+
     translation_service: TranslationConsumer
 
     def handle_translated_article(
             self,
             translated_article_dto: TranslatedArticleDTO
     ) -> Translation:
+        """
+        Handle a translated article.
+
+        This method converts the DTO to a domain event and passes it to the
+        translation service.
+        If the translation service raises a DomainError, it is converted to
+        a TranslationHandlerError.
+
+        Args:
+            translated_article_dto (TranslatedArticleDTO): The DTO of the
+            translated article.
+
+        Returns:
+            Translation: The translation result.
+
+        Raises:
+            TranslationHandlerError: If the translation service raises
+            a DomainError.
+        """
         event = translated_article_dto.to_domain()
         try:
             return self.translation_service.handle_translation_event(event)
