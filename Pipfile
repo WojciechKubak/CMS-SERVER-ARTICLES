@@ -25,6 +25,7 @@ pytest = "*"
 coverage = "*"
 black = "*"
 flake8-bugbear = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.12"
