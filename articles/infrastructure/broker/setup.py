@@ -20,7 +20,7 @@ def setup_start_pooling(app: Flask, executor: Executor) -> None:
         executor (Executor): The executor to run tasks.
     """
 
-    @app.route('/start')
+    @app.route("/start")
     def start_pooling() -> Response:
         """
         Start consuming messages from Kafka.
@@ -37,6 +37,6 @@ def setup_start_pooling(app: Flask, executor: Executor) -> None:
             kafka_manager.consume_messages,
             TRANSLATED_ARTICLES_TOPIC,
             consumer_service.handle_translated_article,
-            TranslatedArticleDTO
+            TranslatedArticleDTO,
         )
-        return make_response({'message': 'Started'}, 200)
+        return make_response({"message": "Started"}, 200)

@@ -13,6 +13,7 @@ class Category:
         name (str): The name of the category.
         description (str | None): The description of the category. Can be None.
     """
+
     id_: int | None
     name: str
     description: str | None
@@ -70,11 +71,7 @@ class Article:
     category: Category | int
     tags: list[Tag] | list[int]
 
-    def change_category_and_tags(
-            self,
-            category: Category,
-            tags: list[Tag]
-    ) -> Self:
+    def change_category_and_tags(self, category: Category, tags: list[Tag]) -> Self:
         """
         Method to change the category and tags of the article.
 
@@ -148,7 +145,7 @@ class Translation:
             content=content_path,
             language=self.language,
             is_ready=True,
-            article=self.article
+            article=self.article,
         )
 
     @classmethod
@@ -165,9 +162,5 @@ class Translation:
             set to False.
         """
         return cls(
-            id_=None,
-            content=None,
-            language=language,
-            is_ready=False,
-            article=article
+            id_=None, content=None, language=language, is_ready=False, article=article
         )

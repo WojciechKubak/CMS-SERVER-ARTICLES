@@ -1,7 +1,4 @@
-from articles.env_config import (
-    TRANSLATION_REQUESTS_TOPIC,
-    LANGUAGE_CHANGES_TOPIC
-)
+from articles.env_config import TRANSLATION_REQUESTS_TOPIC, LANGUAGE_CHANGES_TOPIC
 from articles.infrastructure.adapters.adapters import (
     CategoryDbAdapter,
     ArticleDbAdapter,
@@ -10,14 +7,14 @@ from articles.infrastructure.adapters.adapters import (
     TranslationDbAdapter,
     FileStorageAdapter,
     ArticleMessageBroker,
-    LanguageMessageBroker
+    LanguageMessageBroker,
 )
 from articles.infrastructure.persistance.repository import (
     category_repository,
     article_repository,
     tag_repository,
     language_repository,
-    translation_repository
+    translation_repository,
 )
 from articles.infrastructure.storage.configuration import s3_bucket_manager
 from articles.infrastructure.broker.configuration import kafka_manager
@@ -33,6 +30,4 @@ article_message_broker = ArticleMessageBroker(
     kafka_manager,
     TRANSLATION_REQUESTS_TOPIC,
 )
-language_message_broker = LanguageMessageBroker(
-    kafka_manager, LANGUAGE_CHANGES_TOPIC
-)
+language_message_broker = LanguageMessageBroker(kafka_manager, LANGUAGE_CHANGES_TOPIC)

@@ -3,11 +3,11 @@ from articles.infrastructure.broker.dto import TranslatedArticleDTO
 
 def test_to_domain() -> None:
     data = {
-        'article_id': 1,
-        'title': 'title',
-        'content_path': 'path',
-        'language_id': 1,
-        'author_id': 1
+        "article_id": 1,
+        "title": "title",
+        "content_path": "path",
+        "language_id": 1,
+        "author_id": 1,
     }
     dto = TranslatedArticleDTO(**data)
 

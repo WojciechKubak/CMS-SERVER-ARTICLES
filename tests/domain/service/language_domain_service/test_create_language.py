@@ -8,10 +8,7 @@ import pytest
 
 class TestCreateLanguage:
 
-    def test_when_name_exists(
-            self,
-            language_domain_service: LanguageService
-    ) -> None:
+    def test_when_name_exists(self, language_domain_service: LanguageService) -> None:
         language_dto = LanguageEntityFactory()
         language = LanguageFactory(name=language_dto.name)
 
@@ -20,15 +17,11 @@ class TestCreateLanguage:
 
         assert LanguageNameExistsError().message == str(e.value)
 
-    def test_when_created(
-            self,
-            language_domain_service: LanguageService
-    ) -> None:
+    def test_when_created(self, language_domain_service: LanguageService) -> None:
         language = LanguageFactory()
 
         with patch.object(
-            language_domain_service.language_event_publisher,
-            'publish_event'
+            language_domain_service.language_event_publisher, "publish_event"
         ) as publish:
             result = language_domain_service.create_language(language)
 

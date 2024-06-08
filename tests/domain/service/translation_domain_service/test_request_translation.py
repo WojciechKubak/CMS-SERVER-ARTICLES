@@ -3,12 +3,12 @@ from articles.domain.service import TranslationService
 from articles.domain.errors import (
     ArticleNotFoundError,
     LanguageNotFoundError,
-    TranslationExistsError
+    TranslationExistsError,
 )
 from tests.factory import (
     ArticleEntityFactory,
     LanguageEntityFactory,
-    TranslationEntityFactory
+    TranslationEntityFactory,
 )
 from unittest.mock import patch
 import pytest
@@ -17,8 +17,7 @@ import pytest
 class TestRequestArticleTranslation:
 
     def test_when_no_language(
-            self,
-            translation_domain_service: TranslationService
+        self, translation_domain_service: TranslationService
     ) -> None:
         article = ArticleEntityFactory()
 
@@ -28,8 +27,7 @@ class TestRequestArticleTranslation:
         assert LanguageNotFoundError().message == str(e.value)
 
     def test_when_no_article(
-            self,
-            translation_domain_service: TranslationService
+        self, translation_domain_service: TranslationService
     ) -> None:
         language = LanguageEntityFactory()
 
@@ -39,32 +37,27 @@ class TestRequestArticleTranslation:
         assert ArticleNotFoundError().message == str(err.value)
 
     def test_when_translation_exists(
-            self,
-            translation_domain_service: TranslationService
+        self, translation_domain_service: TranslationService
     ) -> None:
         translation = TranslationEntityFactory()
         with pytest.raises(TranslationExistsError) as err:
             translation_domain_service.request_translation(
-                translation.article_id,
-                translation.language_id
+                translation.article_id, translation.language_id
             )
         assert TranslationExistsError().message == str(err.value)
 
-    @pytest.mark.skip('Adapter not returning ID of dao')
+    @pytest.mark.skip("Adapter not returning ID of dao")
     def test_when_translation_request(
-            self,
-            translation_domain_service: TranslationService
+        self, translation_domain_service: TranslationService
     ) -> None:
         article = ArticleEntityFactory()
         language = LanguageEntityFactory()
 
         with patch.object(
-            translation_domain_service.article_event_publisher,
-            'publish_event'
+            translation_domain_service.article_event_publisher, "publish_event"
         ) as publish:
             result = translation_domain_service.request_translation(
-                article.id,
-                language.id
+                article.id, language.id
             )
 
         publish.assert_called_once()

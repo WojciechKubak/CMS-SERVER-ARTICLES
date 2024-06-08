@@ -22,8 +22,7 @@ class ConsumerService:
     translation_service: TranslationConsumer
 
     def handle_translated_article(
-            self,
-            translated_article_dto: TranslatedArticleDTO
+        self, translated_article_dto: TranslatedArticleDTO
     ) -> Translation:
         """
         Handle a translated article.

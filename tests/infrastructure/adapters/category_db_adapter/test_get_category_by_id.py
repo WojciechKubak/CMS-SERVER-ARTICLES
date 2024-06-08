@@ -5,10 +5,7 @@ from tests.factory import CategoryEntityFactory
 
 class TestGetCategoryById:
 
-    def test_when_not_found(
-            self,
-            category_db_adapter: CategoryDbAdapter
-    ) -> None:
+    def test_when_not_found(self, category_db_adapter: CategoryDbAdapter) -> None:
         result = category_db_adapter.get_category_by_id(999)
         assert not result
 

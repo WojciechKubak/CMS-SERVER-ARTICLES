@@ -11,7 +11,7 @@ class TestGetTagById:
     def test_when_domain_error(self, tag_api_service: TagApiService) -> None:
         with patch.object(
             tag_api_service.tag_service,
-            'get_tag_by_id',
+            "get_tag_by_id",
         ) as mock_get_tag_by_id:
             mock_get_tag_by_id.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -24,7 +24,7 @@ class TestGetTagById:
 
         with patch.object(
             tag_api_service.tag_service,
-            'get_tag_by_id',
+            "get_tag_by_id",
         ) as mock_get_tag_by_id:
             mock_get_tag_by_id.return_value = MagicMock()
             result = tag_api_service.get_tag_by_id(tag_id)

@@ -6,13 +6,13 @@ import pytest
 
 @pytest.fixture
 def bucket_name() -> str:
-    return 'bucket_name'
+    return "bucket_name"
 
 
 @pytest.fixture
 def conn() -> boto3.resource:
     with mock_aws():
-        conn = boto3.resource('s3')
+        conn = boto3.resource("s3")
         yield conn
 
 
@@ -20,9 +20,6 @@ def conn() -> boto3.resource:
 def service(conn, bucket_name: str) -> Boto3Service:
     conn.create_bucket(Bucket=bucket_name)
     service = Boto3Service(
-        'access_key_id',
-        'secret_access_key',
-        'bucket_name',
-        'bucket_subfolder_name'
+        "access_key_id", "secret_access_key", "bucket_name", "bucket_subfolder_name"
     )
     yield service

@@ -322,9 +322,7 @@ class TranslationDB(ABC):
 
     @abstractmethod
     def get_translation_by_article_and_language(
-        self,
-        article_id: int,
-        language_id: int
+        self, article_id: int, language_id: int
     ) -> Translation | None:
         """
         Abstract method to get a translation by article id and language id.

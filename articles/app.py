@@ -33,13 +33,13 @@ def create_app(config: Config) -> Flask:
     sa.init_app(app)
     _ = Migrate(app, sa)
 
-    api = Api(app, prefix='/articles')
+    api = Api(app, prefix="/articles")
     setup_routing(api)
 
     with app.app_context():
 
-        @app.route('/health')
+        @app.route("/health")
         def health() -> Response:
-            return make_response({'message': 'OK'}, 200)
+            return make_response({"message": "OK"}, 200)
 
         return app

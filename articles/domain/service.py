@@ -5,7 +5,7 @@ from articles.application.ports.input import (
     TranslationAPI,
     LanguageAPI,
     TranslationRequestUseCase,
-    TranslationConsumer
+    TranslationConsumer,
 )
 from articles.application.ports.output import (
     CategoryDB,
@@ -15,13 +15,13 @@ from articles.application.ports.output import (
     LanguageDB,
     FileStorage,
     ArticleEventPublisher,
-    LanguageEventPublisher
+    LanguageEventPublisher,
 )
 from articles.domain.event import (
     TranslationRequestEvent,
     ArticleTranslatedEvent,
     LanguageEvent,
-    LanguageEventType
+    LanguageEventType,
 )
 from articles.domain.errors import (
     CategoryNameExistsError,
@@ -34,7 +34,7 @@ from articles.domain.errors import (
     LanguageNotFoundError,
     LanguageNameExistsError,
     TranslationExistsError,
-    TranslationPublishedError
+    TranslationPublishedError,
 )
 from articles.domain.model import Category, Article, Tag, Translation, Language
 from dataclasses import dataclass
@@ -189,12 +189,12 @@ class ArticleService(ArticleAPI):
             raise TagNotFoundError()
 
         content_path = self.file_storage.upload_content(article.content)
-        article_to_add = article\
-            .change_category_and_tags(category, tags)\
-            .change_content(content_path)
-        added_article = self.article_db \
-            .save_article(article_to_add) \
-            .change_content(article.content)
+        article_to_add = article.change_category_and_tags(
+            category, tags
+        ).change_content(content_path)
+        added_article = self.article_db.save_article(article_to_add).change_content(
+            article.content
+        )
 
         return added_article
 
@@ -227,10 +227,8 @@ class ArticleService(ArticleAPI):
         if len(tags_by_id) != len(article.tags):
             raise TagNotFoundError()
 
-        article_to_update = article.change_category_and_tags(
-            category_by_id, tags_by_id)
-        self.file_storage.update_content(
-            article_by_id.content, article.content)
+        article_to_update = article.change_category_and_tags(category_by_id, tags_by_id)
+        self.file_storage.update_content(article_by_id.content, article.content)
         updated_article = self.article_db.update_article(article_to_update)
 
         return updated_article
@@ -292,9 +290,8 @@ class ArticleService(ArticleAPI):
             raise CategoryNotFoundError()
         articles = self.article_db.get_articles_with_category(category_id)
         return [
-            article.change_content(
-                self.file_storage.read_content(article.content)
-            ) for article in articles
+            article.change_content(self.file_storage.read_content(article.content))
+            for article in articles
         ]
 
     def get_all_articles(self) -> list[Article]:
@@ -305,9 +302,8 @@ class ArticleService(ArticleAPI):
             list[Article]: A list of all articles.
         """
         return [
-            article.change_content(
-                self.file_storage.read_content(article.content)
-            ) for article in self.article_db.get_all_articles()
+            article.change_content(self.file_storage.read_content(article.content))
+            for article in self.article_db.get_all_articles()
         ]
 
 
@@ -411,9 +407,7 @@ class TagService(TagAPI):
 
 @dataclass
 class TranslationService(
-        TranslationAPI,
-        TranslationRequestUseCase,
-        TranslationConsumer
+    TranslationAPI, TranslationRequestUseCase, TranslationConsumer
 ):
     """
     Service class for Translation operations.
@@ -454,11 +448,7 @@ class TranslationService(
 
         return translation
 
-    def request_translation(
-            self,
-            article_id: int,
-            language_id: str
-    ) -> Translation:
+    def request_translation(self, article_id: int, language_id: str) -> Translation:
         """
         Request a translation for an article in a specific language.
 
@@ -482,23 +472,18 @@ class TranslationService(
         if not article:
             raise ArticleNotFoundError()
         if self.translation_db.get_translation_by_article_and_language(
-            article_id,
-            language_id
+            article_id, language_id
         ):
             raise TranslationExistsError()
 
         translation_to_add = Translation.create_request(language, article)
-        added_translation = self.translation_db.save_translation(
-            translation_to_add)
+        added_translation = self.translation_db.save_translation(translation_to_add)
         event = TranslationRequestEvent.create(article, language)
         self.article_event_publisher.publish_event(event)
 
         return added_translation
 
-    def handle_translation_event(
-            self,
-            event: ArticleTranslatedEvent
-    ) -> Translation:
+    def handle_translation_event(self, event: ArticleTranslatedEvent) -> Translation:
         """
         Handle an event of an article being translated.
 
@@ -519,20 +504,16 @@ class TranslationService(
             raise ArticleNotFoundError()
         if not self.language_db.get_language_by_id(event.language_id):
             raise LanguageNotFoundError()
-        translation = \
-            self.translation_db.get_translation_by_article_and_language(
-                event.article_id,
-                event.language_id
-            )
+        translation = self.translation_db.get_translation_by_article_and_language(
+            event.article_id, event.language_id
+        )
         if not translation:
             raise TranslationNotFoundError()
         if translation.is_ready:
             raise TranslationPublishedError()
 
         translation = translation.publish(event.content_path)
-        updated_translation = self.translation_db.update_translation(
-            translation
-        )
+        updated_translation = self.translation_db.update_translation(translation)
 
         return updated_translation
 
@@ -569,8 +550,7 @@ class LanguageService(LanguageAPI):
             raise LanguageNameExistsError()
 
         added_language = self.language_db.save_language(language)
-        language_event = LanguageEvent.create(
-            added_language, LanguageEventType.CREATE)
+        language_event = LanguageEvent.create(added_language, LanguageEventType.CREATE)
         self.language_event_publisher.publish_event(language_event)
 
         return added_language
@@ -600,7 +580,8 @@ class LanguageService(LanguageAPI):
 
         updated_language = self.language_db.update_language(language)
         language_event = LanguageEvent.create(
-            updated_language, LanguageEventType.UPDATE)
+            updated_language, LanguageEventType.UPDATE
+        )
         self.language_event_publisher.publish_event(language_event)
 
         return updated_language
@@ -621,7 +602,8 @@ class LanguageService(LanguageAPI):
 
         language_to_delete = self.language_db.get_language_by_id(id_)
         language_event = LanguageEvent.create(
-            language_to_delete, LanguageEventType.DELETE)
+            language_to_delete, LanguageEventType.DELETE
+        )
         self.language_event_publisher.publish_event(language_event)
 
         self.language_db.delete_language(id_)

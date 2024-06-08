@@ -5,10 +5,7 @@ from tests.factory import ArticleEntityFactory
 
 class TestGetArticleById:
 
-    def test_when_not_found(
-            self,
-            article_db_adapter: ArticleDbAdapter
-    ) -> None:
+    def test_when_not_found(self, article_db_adapter: ArticleDbAdapter) -> None:
         result = article_db_adapter.get_article_by_id(999)
         assert not result
 

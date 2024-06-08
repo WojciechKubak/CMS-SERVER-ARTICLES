@@ -8,23 +8,16 @@ import pytest
 
 class TestDeleteArticle:
 
-    def test_when_not_found(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_not_found(self, article_domain_service: ArticleService) -> None:
         with pytest.raises(ArticleNotFoundError) as e:
             article_domain_service.delete_article(999)
         assert ArticleNotFoundError().message == str(e.value)
 
-    def test_when_deleted(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_deleted(self, article_domain_service: ArticleService) -> None:
         article = ArticleEntityFactory()
 
         with patch.object(
-            article_domain_service.file_storage,
-            'delete_content'
+            article_domain_service.file_storage, "delete_content"
         ) as mock_delete_content:
             id_ = article_domain_service.delete_article(article.id)
 

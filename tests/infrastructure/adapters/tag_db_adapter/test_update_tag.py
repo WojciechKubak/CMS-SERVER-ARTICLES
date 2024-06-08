@@ -5,7 +5,7 @@ from tests.factory import TagEntityFactory, TagFactory
 
 def test_update_tag(tag_db_adapter: TagDbAdapter) -> None:
     tag_dao = TagEntityFactory()
-    new_name = f'new_{tag_dao.name}'
+    new_name = f"new_{tag_dao.name}"
     tag = TagFactory(name=new_name)
 
     result = tag_db_adapter.update_tag(tag)

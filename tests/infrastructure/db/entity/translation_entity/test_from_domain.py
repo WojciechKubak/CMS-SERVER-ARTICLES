@@ -1,7 +1,7 @@
 from articles.infrastructure.persistance.entity import (
     TranslationEntity,
     LanguageEntity,
-    ArticleEntity
+    ArticleEntity,
 )
 from tests.factory import TranslationFactory
 

@@ -3,23 +3,20 @@ from articles.domain.service import ArticleService
 from articles.domain.errors import (
     ArticleTitleExistsError,
     CategoryNotFoundError,
-    TagNotFoundError
+    TagNotFoundError,
 )
 from tests.factory import (
     ArticleFactory,
     ArticleEntityFactory,
     CategoryEntityFactory,
-    TagEntityFactory
+    TagEntityFactory,
 )
 import pytest
 
 
 class TestCreateArticle:
 
-    def test_when_title_exists(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_title_exists(self, article_domain_service: ArticleService) -> None:
         article_dao = ArticleEntityFactory()
         article = ArticleFactory(title=article_dao.title)
 
@@ -28,10 +25,7 @@ class TestCreateArticle:
 
         assert ArticleTitleExistsError().message == str(e.value)
 
-    def test_when_no_category(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_no_category(self, article_domain_service: ArticleService) -> None:
         article = ArticleFactory()
 
         with pytest.raises(CategoryNotFoundError) as e:
@@ -48,19 +42,15 @@ class TestCreateArticle:
 
         assert TagNotFoundError().message == str(e.value)
 
-    def test_when_created(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_created(self, article_domain_service: ArticleService) -> None:
         category_dao = CategoryEntityFactory()
         tags_dao = TagEntityFactory.create_batch(3)
         article = ArticleFactory(
-            category=category_dao.id,
-            tags=[tag.id for tag in tags_dao]
+            category=category_dao.id, tags=[tag.id for tag in tags_dao]
         )
 
         result = article_domain_service.create_article(article)
 
         expected = ArticleEntity.query.filter_by(id=result.id_).first()
         assert expected.id == result.id_
-        assert 'path' == expected.content_path
+        assert "path" == expected.content_path

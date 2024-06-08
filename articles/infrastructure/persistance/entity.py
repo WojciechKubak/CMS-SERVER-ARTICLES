@@ -7,9 +7,9 @@ from typing import Self
 
 
 articles_tags = sa.Table(
-    'article_tags',
-    Column('article_id', Integer, ForeignKey('articles.id'), primary_key=True),
-    Column('tag_id', Integer, ForeignKey('tags.id'), primary_key=True)
+    "article_tags",
+    Column("article_id", Integer, ForeignKey("articles.id"), primary_key=True),
+    Column("tag_id", Integer, ForeignKey("tags.id"), primary_key=True),
 )
 
 
@@ -18,18 +18,17 @@ class CategoryEntity(sa.Model):
     SQLAlchemy model for the 'categories' table.
     """
 
-    __tablename__ = 'categories'
+    __tablename__ = "categories"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(25), nullable=False)
     description: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    articles = relationship('ArticleEntity', back_populates='category')
+    articles = relationship("ArticleEntity", back_populates="category")
 
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
     updated_at: Mapped[datetime] = mapped_column(
-        default=func.utc_timestamp(),
-        onupdate=func.utc_timestamp()
+        default=func.utc_timestamp(), onupdate=func.utc_timestamp()
     )
 
     @classmethod
@@ -44,18 +43,10 @@ class CategoryEntity(sa.Model):
         Returns:
             CategoryEntity: The created CategoryEntity instance.
         """
-        return cls(
-            id=model.id_,
-            name=model.name,
-            description=model.description
-        )
+        return cls(id=model.id_, name=model.name, description=model.description)
 
     def to_domain(self) -> Category:
-        return Category(
-            id_=self.id,
-            name=self.name,
-            description=self.description
-        )
+        return Category(id_=self.id, name=self.name, description=self.description)
 
 
 class TagEntity(sa.Model):
@@ -63,7 +54,7 @@ class TagEntity(sa.Model):
     SQLAlchemy model for the 'tags' table.
     """
 
-    __tablename__ = 'tags'
+    __tablename__ = "tags"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(25), nullable=False)
@@ -98,7 +89,7 @@ class LanguageEntity(sa.Model):
     SQLAlchemy model for the 'languages' table.
     """
 
-    __tablename__ = 'languages'
+    __tablename__ = "languages"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(25), nullable=False)
@@ -106,8 +97,7 @@ class LanguageEntity(sa.Model):
 
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
     updated_at: Mapped[datetime] = mapped_column(
-        default=func.utc_timestamp(),
-        onupdate=func.utc_timestamp()
+        default=func.utc_timestamp(), onupdate=func.utc_timestamp()
     )
 
     @classmethod
@@ -140,33 +130,26 @@ class ArticleEntity(sa.Model):
     SQLAlchemy model for the 'articles' table.
     """
 
-    __tablename__ = 'articles'
+    __tablename__ = "articles"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(50), nullable=False)
     content_path: Mapped[str] = mapped_column(String(255), nullable=True)
 
-    category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'))
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     category: Mapped[CategoryEntity] = relationship(
-        CategoryEntity,
-        back_populates='articles',
-        lazy='immediate'
+        CategoryEntity, back_populates="articles", lazy="immediate"
     )
     tags: Mapped[list[TagEntity]] = relationship(
-        TagEntity,
-        secondary=articles_tags,
-        lazy='immediate'
+        TagEntity, secondary=articles_tags, lazy="immediate"
     )
-    translations: Mapped[list['TranslationEntity']] = relationship(
-        'TranslationEntity',
-        back_populates='article',
-        lazy='immediate'
+    translations: Mapped[list["TranslationEntity"]] = relationship(
+        "TranslationEntity", back_populates="article", lazy="immediate"
     )
 
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
     updated_at: Mapped[datetime] = mapped_column(
-        default=func.utc_timestamp(),
-        onupdate=func.utc_timestamp()
+        default=func.utc_timestamp(), onupdate=func.utc_timestamp()
     )
 
     @classmethod
@@ -186,7 +169,7 @@ class ArticleEntity(sa.Model):
             title=model.title,
             content_path=model.content,
             category=CategoryEntity.from_domain(model.category),
-            tags=[TagEntity.from_domain(tag) for tag in model.tags]
+            tags=[TagEntity.from_domain(tag) for tag in model.tags],
         )
 
     def to_domain(self) -> Article:
@@ -211,28 +194,22 @@ class TranslationEntity(sa.Model):
     SQLAlchemy model for the 'translations' table.
     """
 
-    __tablename__ = 'translations'
+    __tablename__ = "translations"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     content_path: Mapped[str] = mapped_column(String(255), nullable=True)
     is_ready: Mapped[bool] = mapped_column(Boolean, default=False)
 
-    language_id: Mapped[int] = mapped_column(ForeignKey('languages.id'))
-    language: Mapped[LanguageEntity] = relationship(
-        LanguageEntity,
-        lazy='immediate'
-    )
-    article_id: Mapped[int] = mapped_column(ForeignKey('articles.id'))
+    language_id: Mapped[int] = mapped_column(ForeignKey("languages.id"))
+    language: Mapped[LanguageEntity] = relationship(LanguageEntity, lazy="immediate")
+    article_id: Mapped[int] = mapped_column(ForeignKey("articles.id"))
     article: Mapped[ArticleEntity] = relationship(
-        'ArticleEntity',
-        back_populates='translations',
-        lazy='immediate'
+        "ArticleEntity", back_populates="translations", lazy="immediate"
     )
 
     created_at: Mapped[datetime] = mapped_column(default=func.utc_timestamp())
     updated_at: Mapped[datetime] = mapped_column(
-        default=func.utc_timestamp(),
-        onupdate=func.utc_timestamp()
+        default=func.utc_timestamp(), onupdate=func.utc_timestamp()
     )
 
     @classmethod
@@ -252,7 +229,7 @@ class TranslationEntity(sa.Model):
             content_path=model.content,
             language=LanguageEntity.from_domain(model.language),
             is_ready=model.is_ready,
-            article=ArticleEntity.from_domain(model.article)
+            article=ArticleEntity.from_domain(model.article),
         )
 
     def to_domain(self) -> Translation:
@@ -268,5 +245,5 @@ class TranslationEntity(sa.Model):
             content=self.content_path,
             language=self.language.to_domain(),
             is_ready=self.is_ready,
-            article=self.article.to_domain()
+            article=self.article.to_domain(),
         )

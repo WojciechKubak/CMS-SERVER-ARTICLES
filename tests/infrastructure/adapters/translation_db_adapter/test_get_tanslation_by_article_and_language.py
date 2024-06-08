@@ -3,7 +3,7 @@ from tests.factory import TranslationEntityFactory
 
 
 def test_get_translation_by_article_and_language_code(
-        translation_db_adapter: TranslationDbAdapter,
+    translation_db_adapter: TranslationDbAdapter,
 ) -> None:
     translation = TranslationEntityFactory()
 

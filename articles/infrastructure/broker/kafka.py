@@ -32,18 +32,12 @@ class KafkaService:
             topic_name (str): The name of the topic.
             dto_class (Type): The class of the DTO to produce.
         """
-        producer = Producer({'bootstrap.servers': self.bootstrap_servers})
-        producer.produce(
-            topic_name,
-            json.dumps(dto_class.to_dict()).encode('utf-8')
-        )
+        producer = Producer({"bootstrap.servers": self.bootstrap_servers})
+        producer.produce(topic_name, json.dumps(dto_class.to_dict()).encode("utf-8"))
         producer.flush()
 
     def consume_messages(
-            self,
-            topic_name: str,
-            handler: Callable[[Type], None],
-            dto_class: Type
+        self, topic_name: str, handler: Callable[[Type], None], dto_class: Type
     ) -> None:
         """
         Consume messages from a Kafka topic.
@@ -59,11 +53,13 @@ class KafkaService:
             handler (Callable[[Type], None]): The handler for the messages.
             dto_class (Type): The class of the DTO to consume.
         """
-        consumer = Consumer({
-            'bootstrap.servers': self.bootstrap_servers,
-            'group.id': self.group_id,
-            'auto.offset.reset': 'earliest'
-        })
+        consumer = Consumer(
+            {
+                "bootstrap.servers": self.bootstrap_servers,
+                "group.id": self.group_id,
+                "auto.offset.reset": "earliest",
+            }
+        )
         consumer.subscribe([topic_name])
 
         logging.info(f"Consuming messages from topic: {topic_name}")
@@ -79,7 +75,7 @@ class KafkaService:
                 continue
 
             try:
-                data = json.loads(msg.value().decode('utf-8'))
+                data = json.loads(msg.value().decode("utf-8"))
 
                 try:
                     handler(dto_class.from_json(data))

@@ -3,7 +3,7 @@ from tests.factory import ArticleFactory
 
 def test_change_content() -> None:
     article = ArticleFactory()
-    new_content = f'new_{article.content}'
+    new_content = f"new_{article.content}"
 
     result = article.change_content(new_content)
 

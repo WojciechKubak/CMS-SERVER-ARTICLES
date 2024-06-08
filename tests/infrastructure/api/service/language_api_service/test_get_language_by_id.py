@@ -8,13 +8,10 @@ import pytest
 
 class TestGetLanguageById:
 
-    def test_when_domain_error(
-            self,
-            language_api_service: LanguageApiService
-    ) -> None:
+    def test_when_domain_error(self, language_api_service: LanguageApiService) -> None:
         with patch.object(
             language_api_service.language_service,
-            'get_language_by_id',
+            "get_language_by_id",
         ) as mock_get_language_by_id:
             mock_get_language_by_id.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -22,15 +19,12 @@ class TestGetLanguageById:
 
         assert DomainError().message == str(e.value)
 
-    def test_when_found(
-            self,
-            language_api_service: LanguageApiService
-    ) -> None:
+    def test_when_found(self, language_api_service: LanguageApiService) -> None:
         language_id = 1
 
         with patch.object(
             language_api_service.language_service,
-            'get_language_by_id',
+            "get_language_by_id",
         ) as mock_get_language_by_id:
             mock_get_language_by_id.return_value = MagicMock()
             result = language_api_service.get_language_by_id(language_id)

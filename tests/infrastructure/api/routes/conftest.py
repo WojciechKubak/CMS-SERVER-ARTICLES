@@ -1,6 +1,6 @@
 import pytest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def base_path() -> str:
-    return 'articles.infrastructure.api.routes'
+    return "articles.infrastructure.api.routes"

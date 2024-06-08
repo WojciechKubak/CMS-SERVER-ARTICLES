@@ -8,13 +8,10 @@ import pytest
 
 class TestGetArticleById:
 
-    def test_when_domain_error(
-            self,
-            article_api_service: ArticleApiService
-    ) -> None:
+    def test_when_domain_error(self, article_api_service: ArticleApiService) -> None:
         with patch.object(
             article_api_service.article_service,
-            'get_article_by_id',
+            "get_article_by_id",
         ) as mock_get_article_by_id:
             mock_get_article_by_id.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -22,15 +19,12 @@ class TestGetArticleById:
 
         assert DomainError().message == str(e.value)
 
-    def test_when_found(
-            self,
-            article_api_service: ArticleApiService
-    ) -> None:
+    def test_when_found(self, article_api_service: ArticleApiService) -> None:
         article_id = 1
 
         with patch.object(
             article_api_service.article_service,
-            'get_article_by_id',
+            "get_article_by_id",
         ) as mock_get_article_by_id:
             mock_get_article_by_id.return_value = MagicMock()
             result = article_api_service.get_article_by_id(article_id)

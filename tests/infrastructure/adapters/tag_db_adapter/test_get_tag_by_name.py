@@ -5,7 +5,7 @@ from tests.factory import TagEntityFactory
 class TestGetTagByName:
 
     def test_when_not_found(self, tag_db_adapter: TagDbAdapter) -> None:
-        result = tag_db_adapter.get_tag_by_name('name')
+        result = tag_db_adapter.get_tag_by_name("name")
         assert not result
 
     def test_when_found(self, tag_db_adapter: TagDbAdapter) -> None:

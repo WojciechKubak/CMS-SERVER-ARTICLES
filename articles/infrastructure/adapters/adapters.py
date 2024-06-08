@@ -6,21 +6,21 @@ from articles.application.ports.output import (
     TranslationDB,
     FileStorage,
     ArticleEventPublisher,
-    LanguageEventPublisher
+    LanguageEventPublisher,
 )
 from articles.infrastructure.persistance.repository import (
     CategoryRepository,
     ArticleRepository,
     TagRepository,
     TranslationRepository,
-    LanguageRepository
+    LanguageRepository,
 )
 from articles.infrastructure.persistance.entity import (
     CategoryEntity,
     ArticleEntity,
     TagEntity,
     TranslationEntity,
-    LanguageEntity
+    LanguageEntity,
 )
 from articles.domain.model import (
     Category,
@@ -34,7 +34,7 @@ from articles.infrastructure.storage.boto3 import Boto3Service
 from articles.infrastructure.broker.kafka import KafkaService
 from articles.infrastructure.broker.dto import (
     TranslationRequestDTO,
-    LanguageChangeEvent
+    LanguageChangeEvent,
 )
 from dataclasses import dataclass
 
@@ -62,8 +62,7 @@ class CategoryDbAdapter(CategoryDB):
             Category: The saved category.
         """
         category_to_add = CategoryEntity.from_domain(category)
-        category_entity = self.category_repository.add_or_update(
-            category_to_add)
+        category_entity = self.category_repository.add_or_update(category_to_add)
         return category_entity.to_domain()
 
     def update_category(self, category: Category) -> Category:
@@ -77,8 +76,7 @@ class CategoryDbAdapter(CategoryDB):
             Category: The updated category.
         """
         category_to_update = CategoryEntity.from_domain(category)
-        category_entity = self.category_repository.add_or_update(
-            category_to_update)
+        category_entity = self.category_repository.add_or_update(category_to_update)
         return category_entity.to_domain()
 
     def delete_category(self, id_: int) -> None:
@@ -126,8 +124,7 @@ class CategoryDbAdapter(CategoryDB):
             list[Category]: A list of all categories.
         """
         return [
-            category.to_domain()
-            for category in self.category_repository.find_all()
+            category.to_domain() for category in self.category_repository.find_all()
         ]
 
 
@@ -168,8 +165,7 @@ class ArticleDbAdapter(ArticleDB):
             Article: The updated article.
         """
         article_to_update = ArticleEntity.from_domain(article)
-        article_entity = self.article_repository.add_or_update(
-            article_to_update)
+        article_entity = self.article_repository.add_or_update(article_to_update)
         return article_entity.to_domain()
 
     def delete_article(self, id_: int) -> None:
@@ -221,8 +217,7 @@ class ArticleDbAdapter(ArticleDB):
         """
         return [
             article.to_domain()
-            for article in self.article_repository.find_by_category_id(
-                category_id)
+            for article in self.article_repository.find_by_category_id(category_id)
         ]
 
     def get_all_articles(self) -> list[Article]:
@@ -232,10 +227,7 @@ class ArticleDbAdapter(ArticleDB):
         Returns:
             list[Article]: A list of all articles.
         """
-        return [
-            article.to_domain()
-            for article in self.article_repository.find_all()
-        ]
+        return [article.to_domain() for article in self.article_repository.find_all()]
 
 
 @dataclass
@@ -324,10 +316,7 @@ class TagDbAdapter(TagDB):
         Returns:
             list[Tag]: A list of the tags with the given IDs.
         """
-        return [
-            tag.to_domain()
-            for tag in self.tag_repository.find_many_by_id(ids)
-        ]
+        return [tag.to_domain() for tag in self.tag_repository.find_many_by_id(ids)]
 
     def get_all_tags(self) -> list[Tag]:
         """
@@ -363,7 +352,8 @@ class TranslationDbAdapter(TranslationDB):
         """
         translation_to_add = TranslationEntity.from_domain(translation)
         translation_entity = self.translation_repository.add_or_update(
-            translation_to_add)
+            translation_to_add
+        )
         return translation_entity.to_domain()
 
     def update_translation(self, translation: Translation) -> Translation:
@@ -378,7 +368,8 @@ class TranslationDbAdapter(TranslationDB):
         """
         translation_to_update = TranslationEntity.from_domain(translation)
         translation_entity = self.translation_repository.add_or_update(
-            translation_to_update)
+            translation_to_update
+        )
         return translation_entity.to_domain()
 
     def get_translation_by_id(self, id_: int) -> Translation | None:
@@ -396,9 +387,7 @@ class TranslationDbAdapter(TranslationDB):
         return result.to_domain() if result else None
 
     def get_translation_by_article_and_language(
-            self,
-            article_id: int,
-            language_id: int
+        self, article_id: int, language_id: int
     ) -> Translation | None:
         """
         Get a translation by its associated article and language.
@@ -412,7 +401,8 @@ class TranslationDbAdapter(TranslationDB):
             language, or None if no such translation exists.
         """
         result = self.translation_repository.find_by_article_and_language(
-            article_id, language_id)
+            article_id, language_id
+        )
         return result.to_domain() if result else None
 
 
@@ -439,8 +429,7 @@ class LanguageDbAdapter(LanguageDB):
             Language: The saved language.
         """
         language_to_add = LanguageEntity.from_domain(language)
-        language_entity = self.language_repository.add_or_update(
-            language_to_add)
+        language_entity = self.language_repository.add_or_update(language_to_add)
         return language_entity.to_domain()
 
     def update_language(self, language: Language) -> Language:
@@ -454,8 +443,7 @@ class LanguageDbAdapter(LanguageDB):
             Language: The updated language.
         """
         language_to_update = LanguageEntity.from_domain(language)
-        language_entity = self.language_repository.add_or_update(
-            language_to_update)
+        language_entity = self.language_repository.add_or_update(language_to_update)
         return language_entity.to_domain()
 
     def get_language_by_name(self, name: str) -> Language | None:
@@ -503,8 +491,7 @@ class LanguageDbAdapter(LanguageDB):
             list[Language]: A list of all languages.
         """
         return [
-            language.to_domain()
-            for language in self.language_repository.find_all()
+            language.to_domain() for language in self.language_repository.find_all()
         ]
 
 
@@ -575,6 +562,7 @@ class ArticleMessageBroker(ArticleEventPublisher):
         translation_requests_topic (str): The topic for translation request
         events.
     """
+
     kafka_manager: KafkaService
     translation_requests_topic: str
 
@@ -586,8 +574,7 @@ class ArticleMessageBroker(ArticleEventPublisher):
             event (TranslationRequestEvent): The event to be published.
         """
         dto = TranslationRequestDTO.from_domain(event)
-        self.kafka_manager.produce_message(
-            self.translation_requests_topic, dto)
+        self.kafka_manager.produce_message(self.translation_requests_topic, dto)
 
 
 @dataclass

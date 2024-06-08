@@ -25,12 +25,12 @@ class Boto3Service:
         Initialize the S3 client after the instance is created.
         """
         self.s3 = boto3.client(
-            's3',
+            "s3",
             aws_access_key_id=self.access_key_id,
-            aws_secret_access_key=self.secret_access_key
+            aws_secret_access_key=self.secret_access_key,
         )
 
-    def upload_to_file(self, content: str, file_extension: str = 'txt') -> str:
+    def upload_to_file(self, content: str, file_extension: str = "txt") -> str:
         """
         Upload content to an S3 file.
 
@@ -43,11 +43,7 @@ class Boto3Service:
         """
         file_name = f"{uuid.uuid4().hex}.{file_extension}"
         file_path = f"{self.bucket_subfolder_name}/{file_name}"
-        self.s3.put_object(
-            Body=content,
-            Bucket=self.bucket_name,
-            Key=file_path
-        )
+        self.s3.put_object(Body=content, Bucket=self.bucket_name, Key=file_path)
         return file_path
 
     def update_file_content(self, path: str, new_content: str) -> None:
@@ -80,5 +76,5 @@ class Boto3Service:
             str: Content of the file.
         """
         response = self.s3.get_object(Bucket=self.bucket_name, Key=path)
-        content = response['Body'].read().decode('utf-8')
+        content = response["Body"].read().decode("utf-8")
         return content

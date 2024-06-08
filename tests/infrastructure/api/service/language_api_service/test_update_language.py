@@ -8,15 +8,12 @@ import pytest
 
 class TestUpdateLanguage:
 
-    def test_when_domain_error(
-            self,
-            language_api_service: LanguageApiService
-    ) -> None:
+    def test_when_domain_error(self, language_api_service: LanguageApiService) -> None:
         mock_dto = MagicMock()
 
         with patch.object(
             language_api_service.language_service,
-            'update_language',
+            "update_language",
         ) as mock_update_language:
             mock_update_language.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -24,20 +21,15 @@ class TestUpdateLanguage:
 
         assert DomainError().message == str(e.value)
 
-    def test_when_updated(
-            self,
-            language_api_service: LanguageApiService
-    ) -> None:
+    def test_when_updated(self, language_api_service: LanguageApiService) -> None:
         mock_dto = MagicMock()
 
         with patch.object(
             language_api_service.language_service,
-            'update_language',
+            "update_language",
         ) as mock_update_language:
             mock_update_language.return_value = MagicMock()
             result = language_api_service.update_language(mock_dto)
 
-        mock_update_language.assert_called_once_with(
-            mock_dto.to_domain()
-        )
+        mock_update_language.assert_called_once_with(mock_dto.to_domain())
         assert isinstance(result, LanguageDTO)

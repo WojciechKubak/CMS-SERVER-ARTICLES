@@ -3,14 +3,14 @@ from articles.domain.configuration import (
     domain_article_service,
     domain_tag_service,
     domain_language_service,
-    domain_translation_service
+    domain_translation_service,
 )
 from articles.infrastructure.api.service import (
     CategoryApiService,
     ArticleApiService,
     TagApiService,
     TranslationApiService,
-    LanguageApiService
+    LanguageApiService,
 )
 
 

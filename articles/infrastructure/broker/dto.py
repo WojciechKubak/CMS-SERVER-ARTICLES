@@ -2,7 +2,7 @@ from articles.domain.event import (
     ArticleTranslatedEvent,
     TranslationRequestEvent,
     LanguageEvent,
-    LanguageEventType
+    LanguageEventType,
 )
 from dataclasses import dataclass
 from typing import Any, Self
@@ -39,11 +39,11 @@ class TranslationRequestDTO:
             dict[str, Any]: The dictionary representation of the DTO.
         """
         return {
-            'id': self.article_id,
-            'title': self.title,
-            'content_path': self.content_path,
-            'language_id': self.language_id,
-            'date': self.date.strftime('%Y-%m-%d %H:%M:%S')
+            "id": self.article_id,
+            "title": self.title,
+            "content_path": self.content_path,
+            "language_id": self.language_id,
+            "date": self.date.strftime("%Y-%m-%d %H:%M:%S"),
         }
 
     @classmethod
@@ -62,7 +62,7 @@ class TranslationRequestDTO:
             title=event.title,
             content_path=event.content_path,
             language_id=event.language_id,
-            date=event.date
+            date=event.date,
         )
 
 
@@ -94,10 +94,10 @@ class LanguageChangeEvent:
             dict[str, Any]: The dictionary representation of the DTO.
         """
         return {
-            'id': self.id_,
-            'name': self.name,
-            'code': self.code,
-            'event_type': self.event_type.value
+            "id": self.id_,
+            "name": self.name,
+            "code": self.code,
+            "event_type": self.event_type.value,
         }
 
     @classmethod
@@ -112,10 +112,7 @@ class LanguageChangeEvent:
             LanguageChangeEvent: The created DTO.
         """
         return cls(
-            id_=event.id_,
-            name=event.name,
-            code=event.code,
-            event_type=event.event_type
+            id_=event.id_, name=event.name, code=event.code, event_type=event.event_type
         )
 
 
@@ -153,7 +150,7 @@ class TranslatedArticleDTO:
             title=self.title,
             content_path=self.content_path,
             language_id=self.language_id,
-            author_id=self.author_id
+            author_id=self.author_id,
         )
 
     @classmethod
@@ -168,9 +165,9 @@ class TranslatedArticleDTO:
             TranslatedArticleDTO: The created DTO.
         """
         return cls(
-            article_id=data['id'],
-            title=data['title'],
-            language_id=data['language_id'],
-            content_path=data['content_path'],
-            author_id=data['translator_id']
+            article_id=data["id"],
+            title=data["title"],
+            language_id=data["language_id"],
+            content_path=data["content_path"],
+            author_id=data["translator_id"],
         )

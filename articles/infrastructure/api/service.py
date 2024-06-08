@@ -21,7 +21,7 @@ from articles.infrastructure.api.dto import (
     TagDTO,
     TagCreateDTO,
     TagUpdateDTO,
-    TranslationDTO
+    TranslationDTO,
 )
 from articles.domain.errors import DomainError
 from dataclasses import dataclass
@@ -39,10 +39,7 @@ class CategoryApiService:
 
     category_service: CategoryAPI
 
-    def create_category(
-            self,
-            category_create_dto: CategoryCreateDTO
-    ) -> CategoryDTO:
+    def create_category(self, category_create_dto: CategoryCreateDTO) -> CategoryDTO:
         """
         Create a new category.
 
@@ -64,10 +61,7 @@ class CategoryApiService:
         except DomainError as e:
             raise ApplicationError(str(e))
 
-    def update_category(
-            self,
-            category_update_dto: CategoryUpdateDTO
-    ) -> CategoryDTO:
+    def update_category(self, category_update_dto: CategoryUpdateDTO) -> CategoryDTO:
         """
         Update an existing category.
 
@@ -144,12 +138,10 @@ class ArticleApiService:
     Attributes:
         article_service (ArticleAPI): The article service instance.
     """
+
     article_service: ArticleAPI
 
-    def create_article(
-            self,
-            article_create_dto: ArticleCreateDTO
-    ) -> ArticleDTO:
+    def create_article(self, article_create_dto: ArticleCreateDTO) -> ArticleDTO:
         """
         Create a new article.
 
@@ -163,17 +155,12 @@ class ArticleApiService:
             ApplicationError: If there is a domain error.
         """
         try:
-            result = self.article_service.create_article(
-                article_create_dto.to_domain()
-            )
+            result = self.article_service.create_article(article_create_dto.to_domain())
             return ArticleDTO.from_domain(result)
         except DomainError as e:
             raise ApplicationError(str(e))
 
-    def update_article(
-            self,
-            article_update_dto: ArticleUpdateDTO
-    ) -> ArticleDTO:
+    def update_article(self, article_update_dto: ArticleUpdateDTO) -> ArticleDTO:
         """
         Update an existing article.
 
@@ -187,9 +174,7 @@ class ArticleApiService:
             ApplicationError: If there is a domain error.
         """
         try:
-            result = self.article_service.update_article(
-                article_update_dto.to_domain()
-            )
+            result = self.article_service.update_article(article_update_dto.to_domain())
             return ArticleDTO.from_dto(result)
         except DomainError as e:
             raise ApplicationError(str(e))
@@ -231,10 +216,7 @@ class ArticleApiService:
         except DomainError as e:
             raise ApplicationError(str(e))
 
-    def get_articles_with_category(
-            self,
-            category_id: int
-    ) -> list[ArticleListDTO]:
+    def get_articles_with_category(self, category_id: int) -> list[ArticleListDTO]:
         """
         Get articles with a specific category.
 
@@ -249,13 +231,8 @@ class ArticleApiService:
             ApplicationError: If there is a domain error.
         """
         try:
-            articles = self.article_service.get_articles_with_category(
-                category_id
-            )
-            return [
-                ArticleListDTO.from_domain(article)
-                for article in articles
-            ]
+            articles = self.article_service.get_articles_with_category(category_id)
+            return [ArticleListDTO.from_domain(article) for article in articles]
         except DomainError as e:
             raise ApplicationError(str(e))
 
@@ -375,12 +352,10 @@ class LanguageApiService:
     Attributes:
         language_service (LanguageAPI): The language service instance.
     """
+
     language_service: LanguageAPI
 
-    def create_language(
-            self,
-            language_create_dto: LanguageCreateDTO
-    ) -> LanguageDTO:
+    def create_language(self, language_create_dto: LanguageCreateDTO) -> LanguageDTO:
         """
         Create a new language.
 
@@ -402,10 +377,7 @@ class LanguageApiService:
         except DomainError as e:
             raise ApplicationError(str(e))
 
-    def update_language(
-            self,
-            language_update_dto: LanguageUpdateDTO
-    ) -> LanguageDTO:
+    def update_language(self, language_update_dto: LanguageUpdateDTO) -> LanguageDTO:
         """
         Update an existing language.
 
@@ -505,11 +477,7 @@ class TranslationApiService:
         except DomainError as e:
             raise ApplicationError(str(e))
 
-    def request_translation(
-            self,
-            article_id: int,
-            language_id: int
-    ) -> TranslationDTO:
+    def request_translation(self, article_id: int, language_id: int) -> TranslationDTO:
         """
         Request a translation for an article in a specific language.
 
@@ -525,8 +493,7 @@ class TranslationApiService:
         """
         try:
             result = self.translation_service.request_translation(
-                article_id,
-                language_id
+                article_id, language_id
             )
             return TranslationDTO.from_domain(result)
         except DomainError as e:

@@ -37,8 +37,8 @@ class CategoryDTO(CategoryBase):
             dict[str, Any]: The dictionary representation of the CategoryDTO.
         """
         return {
-            'id': self.id_,
-            'name': self.name,
+            "id": self.id_,
+            "name": self.name,
         }
 
     @classmethod
@@ -53,9 +53,7 @@ class CategoryDTO(CategoryBase):
             CategoryDTO: The created CategoryDTO.
         """
         return cls(
-            id_=category.id_,
-            name=category.name,
-            description=category.description
+            id_=category.id_, name=category.name, description=category.description
         )
 
 
@@ -87,10 +85,7 @@ class CategoryCreateDTO(CategoryBase):
         Returns:
             CategoryCreateDTO: The created CategoryCreateDTO.
         """
-        return cls(
-            name=data['name'],
-            description=data.get('description', None)
-        )
+        return cls(name=data["name"], description=data.get("description", None))
 
 
 @dataclass
@@ -125,9 +120,7 @@ class CategoryUpdateDTO(CategoryBase):
             CategoryUpdateDTO: The created CategoryUpdateDTO.
         """
         return cls(
-            id_=data['id'],
-            name=data['name'],
-            description=data.get('description', None)
+            id_=data["id"], name=data["name"], description=data.get("description", None)
         )
 
 
@@ -162,8 +155,8 @@ class TagDTO(TagBase):
             dict[str, Any]: The dictionary representation of the TagDTO.
         """
         return {
-            'id': self.id_,
-            'name': self.name,
+            "id": self.id_,
+            "name": self.name,
         }
 
     @classmethod
@@ -177,10 +170,7 @@ class TagDTO(TagBase):
         Returns:
             TagDTO: The created TagDTO.
         """
-        return cls(
-            id_=tag.id_,
-            name=tag.name
-        )
+        return cls(id_=tag.id_, name=tag.name)
 
 
 @dataclass
@@ -211,9 +201,7 @@ class TagCreateDTO(TagBase):
         Returns:
             TagCreateDTO: The created TagCreateDTO.
         """
-        return cls(
-            name=data['name']
-        )
+        return cls(name=data["name"])
 
 
 @dataclass
@@ -247,10 +235,7 @@ class TagUpdateDTO(TagBase):
         Returns:
             TagUpdateDTO: The created TagUpdateDTO.
         """
-        return cls(
-            id_=data['id'],
-            name=data['name']
-        )
+        return cls(id_=data["id"], name=data["name"])
 
 
 @dataclass
@@ -285,11 +270,7 @@ class LanguageDTO(LanguageBase):
         Returns:
             dict[str, Any]: The dictionary representation of the LanguageDTO.
         """
-        return {
-            'id': self.id_,
-            'name': self.name,
-            'code': self.code
-        }
+        return {"id": self.id_, "name": self.name, "code": self.code}
 
     @classmethod
     def from_domain(cls, language: Language) -> Self:
@@ -302,11 +283,7 @@ class LanguageDTO(LanguageBase):
         Returns:
             LanguageDTO: The created LanguageDTO.
         """
-        return cls(
-            id_=language.id_,
-            name=language.name,
-            code=language.code
-        )
+        return cls(id_=language.id_, name=language.name, code=language.code)
 
 
 @dataclass
@@ -337,10 +314,7 @@ class LanguageCreateDTO(LanguageBase):
         Returns:
             LanguageCreateDTO: The created LanguageCreateDTO.
         """
-        return cls(
-            name=data['name'],
-            code=data['code']
-        )
+        return cls(name=data["name"], code=data["code"])
 
 
 @dataclass
@@ -351,6 +325,7 @@ class LanguageUpdateDTO(LanguageBase):
     Attributes:
         id_ (int): The ID of the language.
     """
+
     id_: int
 
     def to_domain(self) -> Language:
@@ -373,11 +348,7 @@ class LanguageUpdateDTO(LanguageBase):
         Returns:
             LanguageUpdateDTO: The created LanguageUpdateDTO.
         """
-        return cls(
-            id_=data['id'],
-            name=data['name'],
-            code=data['code']
-        )
+        return cls(id_=data["id"], name=data["name"], code=data["code"])
 
 
 @dataclass
@@ -417,11 +388,11 @@ class ArticleDTO(ArticleBase):
             dict[str, Any]: The dictionary representation of the ArticleDTO.
         """
         return {
-            'id': self.id,
-            'content': self.content,
-            'title': self.title,
-            'category': self.category.to_dict(),
-            'tags': [tag.to_dict() for tag in self.tags],
+            "id": self.id,
+            "content": self.content,
+            "title": self.title,
+            "category": self.category.to_dict(),
+            "tags": [tag.to_dict() for tag in self.tags],
         }
 
     @classmethod
@@ -440,7 +411,7 @@ class ArticleDTO(ArticleBase):
             title=article.title,
             content=article.content,
             category=article.category,
-            tags=article.tags
+            tags=article.tags,
         )
 
 
@@ -468,10 +439,10 @@ class ArticleListDTO(ArticleBase):
             ArticleListDTO.
         """
         return {
-            'id': self.id,
-            'title': self.title,
-            'category': self.category.to_dict(),
-            'tags': [tag.to_dict() for tag in self.tags],
+            "id": self.id,
+            "title": self.title,
+            "category": self.category.to_dict(),
+            "tags": [tag.to_dict() for tag in self.tags],
         }
 
     @classmethod
@@ -489,7 +460,7 @@ class ArticleListDTO(ArticleBase):
             id_=article.id_,
             title=article.title,
             category=article.category,
-            tags=article.tags
+            tags=article.tags,
         )
 
 
@@ -520,7 +491,7 @@ class ArticleCreateDTO(ArticleBase):
             title=self.title,
             content=self.content,
             category=self.category_id,
-            tags=list(set(self.tags_id))
+            tags=list(set(self.tags_id)),
         )
 
     @classmethod
@@ -535,10 +506,10 @@ class ArticleCreateDTO(ArticleBase):
             ArticleCreateDTO: The created ArticleCreateDTO.
         """
         return cls(
-            title=data['title'],
-            content=data['content'],
-            category_id=data['category_id'],
-            tags_id=data['tags_id']
+            title=data["title"],
+            content=data["content"],
+            category_id=data["category_id"],
+            tags_id=data["tags_id"],
         )
 
 
@@ -571,7 +542,7 @@ class ArticleUpdateDTO(ArticleBase):
             title=self.title,
             content=self.content,
             category=self.category_id,
-            tags=list(set(self.tags_id))
+            tags=list(set(self.tags_id)),
         )
 
     @classmethod
@@ -586,11 +557,11 @@ class ArticleUpdateDTO(ArticleBase):
             ArticleUpdateDTO: The created ArticleUpdateDTO.
         """
         return cls(
-            id_=data['id'],
-            title=data['title'],
-            content=data['content'],
-            category_id=data['category_id'],
-            tags_id=data['tags_id']
+            id_=data["id"],
+            title=data["title"],
+            content=data["content"],
+            category_id=data["category_id"],
+            tags_id=data["tags_id"],
         )
 
 
@@ -622,11 +593,11 @@ class TranslationDTO:
             TranslationDTO.
         """
         return {
-            'id': self.id_,
-            'language': self.language.to_dict(),
-            'article': self.article.to_dict(),
-            'title': self.title,
-            'content': self.content
+            "id": self.id_,
+            "language": self.language.to_dict(),
+            "article": self.article.to_dict(),
+            "title": self.title,
+            "content": self.content,
         }
 
     @classmethod
@@ -645,5 +616,5 @@ class TranslationDTO:
             language=translation.language,
             article=translation.article,
             title=translation.title,
-            content=translation.content
+            content=translation.content,
         )

@@ -12,7 +12,7 @@ class TestDeleteTag:
 
         with patch.object(
             tag_api_service.tag_service,
-            'delete_tag',
+            "delete_tag",
         ) as mock_delete_tag:
             mock_delete_tag.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -24,7 +24,7 @@ class TestDeleteTag:
 
         with patch.object(
             tag_api_service.tag_service,
-            'delete_tag',
+            "delete_tag",
         ) as mock_delete_tag:
             mock_delete_tag.return_value = MagicMock()
             tag_api_service.delete_tag(tag_id)

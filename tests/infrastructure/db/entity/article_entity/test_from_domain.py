@@ -1,7 +1,7 @@
 from articles.infrastructure.persistance.entity import (
     ArticleEntity,
     CategoryEntity,
-    TagEntity
+    TagEntity,
 )
 from tests.factory import ArticleFactory
 

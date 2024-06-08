@@ -3,16 +3,12 @@ from articles.infrastructure.api.dto import LanguageDTO
 from unittest.mock import MagicMock, patch
 
 
-def test_get_all_languages(
-        language_api_service: LanguageApiService
-) -> None:
+def test_get_all_languages(language_api_service: LanguageApiService) -> None:
     with patch.object(
         language_api_service.language_service,
-        'get_all_languages',
+        "get_all_languages",
     ) as mock_get_all_languages:
-        mock_get_all_languages.return_value = [
-            MagicMock(), MagicMock()
-        ]
+        mock_get_all_languages.return_value = [MagicMock(), MagicMock()]
         result = language_api_service.get_all_languages()
 
     mock_get_all_languages.assert_called_once()

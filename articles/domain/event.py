@@ -9,9 +9,10 @@ class LanguageEventType(Enum):
     """
     Enum representing the types of events that can occur for a Language.
     """
-    CREATE = 'CREATE'
-    UPDATE = 'UPDATE'
-    DELETE = 'DELETE'
+
+    CREATE = "CREATE"
+    UPDATE = "UPDATE"
+    DELETE = "DELETE"
 
 
 @dataclass
@@ -32,11 +33,7 @@ class LanguageEvent:
     event_type: LanguageEventType
 
     @classmethod
-    def create(
-        cls,
-        language: Language,
-        event_type: LanguageEventType
-    ) -> Self:
+    def create(cls, language: Language, event_type: LanguageEventType) -> Self:
         """
         Class method to create a LanguageEvent from a Language instance and an
         event type.
@@ -52,7 +49,7 @@ class LanguageEvent:
             id_=language.id_,
             name=language.name,
             code=language.code,
-            event_type=event_type
+            event_type=event_type,
         )
 
 
@@ -95,7 +92,7 @@ class TranslationRequestEvent:
             title=article.title,
             content_path=article.content,
             language_id=language.id_,
-            date=datetime.now()
+            date=datetime.now(),
         )
 
 

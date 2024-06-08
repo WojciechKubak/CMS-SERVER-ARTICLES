@@ -13,7 +13,7 @@ class TestCreateTag:
 
         with patch.object(
             tag_api_service.tag_service,
-            'create_tag',
+            "create_tag",
         ) as mock_create_tag:
             mock_create_tag.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -26,12 +26,10 @@ class TestCreateTag:
 
         with patch.object(
             tag_api_service.tag_service,
-            'create_tag',
+            "create_tag",
         ) as mock_create_tag:
             mock_create_tag.return_value = MagicMock()
             result = tag_api_service.create_tag(mock_dto)
 
-        mock_create_tag.assert_called_once_with(
-            mock_dto.to_domain()
-        )
+        mock_create_tag.assert_called_once_with(mock_dto.to_domain())
         assert isinstance(result, TagDTO)

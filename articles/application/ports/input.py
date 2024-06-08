@@ -319,11 +319,7 @@ class TranslationRequestUseCase(ABC):
     """
 
     @abstractmethod
-    def request_translation(
-        self,
-        article_id: int,
-        language_id: int
-    ) -> Translation:
+    def request_translation(self, article_id: int, language_id: int) -> Translation:
         """
         Abstract method to request a translation.
 
@@ -344,10 +340,7 @@ class TranslationConsumer(ABC):
     """
 
     @abstractmethod
-    def handle_translation_event(
-        self,
-        event: ArticleTranslatedEvent
-    ) -> Translation:
+    def handle_translation_event(self, event: ArticleTranslatedEvent) -> Translation:
         """
         Abstract method to handle a translation event.
 

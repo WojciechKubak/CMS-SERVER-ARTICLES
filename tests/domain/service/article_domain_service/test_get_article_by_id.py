@@ -7,10 +7,7 @@ import pytest
 
 class TestGetArticleById:
 
-    def test_when_not_found(
-            self,
-            article_domain_service: ArticleService
-    ) -> None:
+    def test_when_not_found(self, article_domain_service: ArticleService) -> None:
         with pytest.raises(ArticleNotFoundError) as e:
             article_domain_service.get_article_by_id(999)
         assert ArticleNotFoundError().message == str(e.value)
@@ -19,4 +16,4 @@ class TestGetArticleById:
         article = ArticleEntityFactory()
         result = article_domain_service.get_article_by_id(article.id)
         assert ArticleEntity.query.filter_by(id=result.id_).first()
-        assert 'path_content' == result.content
+        assert "path_content" == result.content

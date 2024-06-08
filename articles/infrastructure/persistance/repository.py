@@ -3,7 +3,7 @@ from articles.infrastructure.persistance.entity import (
     CategoryEntity,
     TagEntity,
     LanguageEntity,
-    TranslationEntity
+    TranslationEntity,
 )
 from articles.infrastructure.persistance.configuration import sa
 from flask_sqlalchemy import SQLAlchemy
@@ -151,8 +151,7 @@ class ArticleRepository(CrudRepositoryORM[ArticleEntity]):
             ArticleEntity | None: The found ArticleEntity or None
             if no ArticleEntity was found.
         """
-        return self.sa.session.query(self.entity) \
-            .filter_by(title=title).first()
+        return self.sa.session.query(self.entity).filter_by(title=title).first()
 
     def find_by_category_id(self, category_id: int) -> list[ArticleEntity]:
         """
@@ -165,8 +164,9 @@ class ArticleRepository(CrudRepositoryORM[ArticleEntity]):
         Returns:
             list[ArticleEntity]: A list of found ArticleEntity objects.
         """
-        return self.sa.session.query(self.entity).filter_by(
-            category_id=category_id).all()
+        return (
+            self.sa.session.query(self.entity).filter_by(category_id=category_id).all()
+        )
 
 
 @dataclass
@@ -223,8 +223,9 @@ class TagRepository(CrudRepositoryORM[TagEntity]):
         Returns:
             list[TagEntity]: A list of found TagEntity objects.
         """
-        return self.sa.session.query(self.entity).filter(
-            self.entity.id.in_(tags_id)).all()
+        return (
+            self.sa.session.query(self.entity).filter(self.entity.id.in_(tags_id)).all()
+        )
 
 
 @dataclass
@@ -237,9 +238,7 @@ class TranslationRepository(CrudRepositoryORM[TranslationEntity]):
     """
 
     def find_by_article_and_language(
-        self,
-        article_id: int,
-        language_id: int
+        self, article_id: int, language_id: int
     ) -> TranslationEntity | None:
         """
         Find a TranslationEntity by its article ID and language ID.
@@ -253,10 +252,14 @@ class TranslationRepository(CrudRepositoryORM[TranslationEntity]):
             TranslationEntity | None: The found TranslationEntity or None if
             no TranslationEntity was found.
         """
-        return self.sa.session.query(self.entity).filter(
-            self.entity.article_id == article_id,
-            self.entity.language_id == language_id
-        ).first()
+        return (
+            self.sa.session.query(self.entity)
+            .filter(
+                self.entity.article_id == article_id,
+                self.entity.language_id == language_id,
+            )
+            .first()
+        )
 
 
 @dataclass

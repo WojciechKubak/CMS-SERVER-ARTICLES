@@ -7,13 +7,10 @@ import pytest
 
 class TestDeleteArticle:
 
-    def test_when_domain_error(
-            self,
-            article_api_service: ArticleApiService
-    ) -> None:
+    def test_when_domain_error(self, article_api_service: ArticleApiService) -> None:
         with patch.object(
             article_api_service.article_service,
-            'delete_article',
+            "delete_article",
         ) as mock_delete_article:
             mock_delete_article.side_effect = DomainError()
             with pytest.raises(ApplicationError) as e:
@@ -21,15 +18,12 @@ class TestDeleteArticle:
 
         assert DomainError().message == str(e.value)
 
-    def test_when_deleted(
-            self,
-            article_api_service: ArticleApiService
-    ) -> None:
+    def test_when_deleted(self, article_api_service: ArticleApiService) -> None:
         id_to_delete = 1
 
         with patch.object(
             article_api_service.article_service,
-            'delete_article',
+            "delete_article",
         ) as mock_delete_article:
             mock_delete_article.return_value = MagicMock()
             article_api_service.delete_article(id_to_delete)

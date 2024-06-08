@@ -4,10 +4,10 @@ from articles.domain.event import LanguageEvent, LanguageEventType
 
 def test_from_domain() -> None:
     data = {
-        'id_': 1,
-        'name': 'name',
-        'code': 'code',
-        'event_type': LanguageEventType.CREATE,
+        "id_": 1,
+        "name": "name",
+        "code": "code",
+        "event_type": LanguageEventType.CREATE,
     }
     event = LanguageEvent(**data)
 

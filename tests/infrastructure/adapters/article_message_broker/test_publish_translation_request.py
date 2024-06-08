@@ -5,23 +5,20 @@ from unittest.mock import Mock
 import pytest
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def mock_kafka_manager() -> ArticleMessageBroker:
     kafka_manager_mock = Mock()
     return ArticleMessageBroker(
         kafka_manager=kafka_manager_mock,
-        translation_requests_topic='requests_topic',
+        translation_requests_topic="requests_topic",
     )
 
 
-def test_publish_translation_request(
-        mock_kafka_manager: ArticleMessageBroker
-) -> None:
+def test_publish_translation_request(mock_kafka_manager: ArticleMessageBroker) -> None:
     event = TranslationRequestEventFactory()
 
     mock_kafka_manager.publish_event(event)
 
     mock_kafka_manager.kafka_manager.produce_message.assert_called_once_with(
-        'requests_topic',
-        TranslationRequestDTO.from_domain(event)
+        "requests_topic", TranslationRequestDTO.from_domain(event)
     )

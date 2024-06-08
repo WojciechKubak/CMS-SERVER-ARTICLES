@@ -5,11 +5,11 @@ from datetime import datetime
 
 def test_from_domain() -> None:
     data = {
-        'article_id': 1,
-        'title': 'title',
-        'content_path': 'path',
-        'language_id': 1,
-        'date': datetime.now()
+        "article_id": 1,
+        "title": "title",
+        "content_path": "path",
+        "language_id": 1,
+        "date": datetime.now(),
     }
     event = TranslationRequestEvent(**data)
 
