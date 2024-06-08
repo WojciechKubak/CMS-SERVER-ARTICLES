@@ -22,7 +22,7 @@ class TestingConfig(Config):
     DEBUG = True
     TESTING = True
 
-    SQLALCHEMY_DATABASE_URI = "mysql://user:user1234@localhost:3311/db_test"
+    SQLALCHEMY_DATABASE_URI = "mysql://user:user1234@127.0.0.1:3311/db_test"
 
     SERVER_NAME = "localhost.localdomain"
     APPLICATION_ROOT = "/"
